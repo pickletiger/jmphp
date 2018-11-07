@@ -34,7 +34,72 @@
 			}
 			$ret_data["success"] = 'success';
 		}
-	}else if($flag=='unreview_mpart'){
+	}
+	//未完成部分
+	else if($flag == 'type'){
+		$sql = "SELECT type from project where isfinish='0' GROUP BY type";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			$i = 0;
+			while($row=$res->fetch_assoc()){
+				$ret_data["data"][$i]["name"] = $row["type"];
+				$ret_data["data"][$i]["leaf"] = false;
+				$i++;
+			}
+			$ret_data["success"] = 'success';
+		}
+	}else if($flag=='project'){
+		$type = isset($_POST["type"])?$_POST["type"]:'';
+//		$ret_data["type"] = $type;
+		$sql = "SELECT id,name,number FROM project WHERE isfinish='0' AND type = '$type'";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			$i = 0;
+			while($row=$res->fetch_assoc()){
+				$ret_data["data"][$i]["id"] = $row["id"];
+				$ret_data["data"][$i]["name"] = $row["number"].$row["name"];
+				$ret_data["data"][$i]["number"] = $row["number"];
+				$ret_data["data"][$i]["zhname"] = $row["name"];
+				$ret_data["data"][$i]["lx"] = 'xm';
+				$ret_data["data"][$i]["leaf"] = false;
+				$i++;
+			}
+			$ret_data["success"] = 'success';
+		}
+	}
+	//已完成部分
+	if($flag == 'finished_type'){
+		$sql = "SELECT type from project where isfinish='1' GROUP BY type";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			$i = 0;
+			while($row=$res->fetch_assoc()){
+				$ret_data["data"][$i]["name"] = $row["type"];
+				$ret_data["data"][$i]["leaf"] = false;
+				$i++;
+			}
+			$ret_data["success"] = 'success';
+		}
+	}else if($flag=='finished_project'){
+		$type = isset($_POST["type"])?$_POST["type"]:'';
+//		$ret_data["type"] = $type;
+		$sql = "SELECT id,name,number FROM project WHERE isfinish='1' AND type = '$type'";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			$i = 0;
+			while($row=$res->fetch_assoc()){
+				$ret_data["data"][$i]["id"] = $row["id"];
+				$ret_data["data"][$i]["name"] = $row["number"].$row["name"];
+				$ret_data["data"][$i]["number"] = $row["number"];
+				$ret_data["data"][$i]["zhname"] = $row["name"];
+				$ret_data["data"][$i]["lx"] = 'xm';
+				$ret_data["data"][$i]["leaf"] = false;
+				$i++;
+			}
+			$ret_data["success"] = 'success';
+		}
+	}
+	else if($flag=='mpart'){  //项目下一级部件
 		$id = isset($_POST["id"])?$_POST["id"]:'';
 		$name = isset($_POST["name"])?$_POST["name"]:'';
 		$number = isset($_POST["number"])?$_POST["number"]:'';
@@ -57,7 +122,7 @@
 			}
 			$ret_data["success"] = 'success';
 		}
-	}else if($flag=='unreview_part'){
+	}else if($flag=='part'){ // 部件
 		$modid = isset($_POST["modid"])?$_POST["modid"]:'';
 		$pid = isset($_POST["pid"])?$_POST["pid"]:'';
 		$name = isset($_POST["name"])?$_POST["name"]:'';

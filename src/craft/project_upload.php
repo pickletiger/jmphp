@@ -42,7 +42,7 @@
 		$sheet = $objPHPExcel->getSheet(0);  // 读取第一个sheet表
 		$highestRow = $sheet->getHighestRow(); // 取得总行数 
    	 	
-	 	$bsql = "INSERT INTO project VALUES(null,'$name','$type','$number','$date',NOW(),'2')";
+	 	$bsql = "INSERT INTO project VALUES(null,null,'$name','$type','$number','$date',NOW(),'2')";
 		$bres = $conn->query($bsql);
 	  	$csql = "SELECT id FROM project WHERE number = '$number'";
 	 	$cres = $conn->query($csql);
@@ -105,13 +105,8 @@
 				$route_arr = explode('→',$q);
 				$length = count($route_arr);
 				for($route_i=1;$route_i<$length;$route_i++){
-					if($route_i==1){
-						$dsql = "INSERT INTO route VALUES(null,'$id','$t','$route_arr[$route_i]','$route_i','$q','2')";
-						$dres = $conn->query($dsql);
-					}else {
-						$dsql = "INSERT INTO route VALUES(null,'$t','$route_arr[$route_i]','$route_i','$q','0')";
-						$dres = $conn->query($dsql);
-					}
+					$dsql = "INSERT INTO route VALUES(null,'$t','$route_arr[$route_i]','$route_i','$q','0')";
+					$dres = $conn->query($dsql);
 					
 				}
 			}
@@ -119,6 +114,9 @@
 	       
 	        if($partname!=$projectname){
 		    	$sql = "INSERT INTO part VALUES(null,'$id','$e','$i','$partname','$k','$l','$m','$n','$o','$p','$s','$t','$u','$y','$r','0')"; //null 为主键id，自增可用null表示自动添加
+		    	$res= $conn->query($sql);
+	        }else {
+	        	$sql = "UPDATE project SET modid='$t' WHERE id = '$id'"; //为项目添加modid
 		    	$res= $conn->query($sql);
 	        }
 	        
