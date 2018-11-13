@@ -1,5 +1,6 @@
 <?php
 	require("../conn.php");
+	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
 	$ret_data='';
 	$flag = isset($_POST["flag"])?$_POST["flag"]:'';
 	
@@ -198,6 +199,41 @@
 						$i++;
 					}
 					$ret_data["success"] = 'success';
+				}
+			}
+		}
+	} else if($flag == 'treefilter'){
+		$modid = isset($_POST["modid"])?$_POST["modid"]:'';
+		$state = isset($_POST["state"])?$_POST["state"]:'';
+		if($modid) {
+			$sql = "SELECT id,name,number FROM project WHERE isfinish='$state' AND modid = '$modid'";
+			$res=$conn->query($sql);
+			if($res->num_rows>0){
+				while($row=$res->fetch_assoc()){
+					$ret_data["data"][0]["id"] = $row["id"];
+					$ret_data["data"][0]["name"] = $row["number"].$row["name"];
+					$ret_data["data"][0]["number"] = $row["number"];
+					$ret_data["data"][0]["zhname"] = $row["name"];
+					$ret_data["data"][0]["lx"] = 'xm';
+					$ret_data["data"][0]["leaf"] = true;
+				}
+				$ret_data["success"] = 'success';
+			}else {
+				$asql = "SELECT id,fid,name,modid,figure_number FROM part  WHERE  modid='$modid'";
+				$ares=$conn->query($asql);
+				if($ares->num_rows>0){
+					while($arow=$ares->fetch_assoc()){
+						$ret_data["data"][0]["id"] = $arow["id"];
+						$ret_data["data"][0]["pid"] = $arow["fid"];  //项目id
+						$ret_data["data"][0]["lx"] = 'bj';
+						$ret_data["data"][0]["name"] = $arow["name"];
+						$ret_data["data"][0]["figure_number"] = $arow["figure_number"];
+						$ret_data["data"][0]["modid"] = $arow["modid"];
+						$ret_data["data"][0]["leaf"] = true;
+					}
+					$ret_data["success"] = 'success';
+				}else {
+					$ret_data["success"] = 'error';
 				}
 			}
 		}

@@ -1,7 +1,7 @@
 <?php
 	require("../../conn.php");
 	$ret_data = '';
-	
+	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
 //	$send_json = @file_get_contents('php://input');  // body 传值获取
 //	$id = isset($_POST["id"]) ? $_POST["id"] : '11111';
 //	$ret_data["id"] = $send_json;

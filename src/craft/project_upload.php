@@ -1,6 +1,6 @@
 <?php
 	require("../../conn.php");
-	
+	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
 	set_time_limit(0); //使无响应时间限制
 	$ret_data = '';
 		

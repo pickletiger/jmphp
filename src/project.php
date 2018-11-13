@@ -1,9 +1,12 @@
 <?php
+	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
 	require("../conn.php");
 	$ret_data='';
 	$flag = isset($_POST["flag"])?$_POST["flag"]:'';
 	$id = isset($_POST["id"])?$_POST["id"]:'';
 	
+//	$ret_data["flag"] = $flag;
+//	$ret_data["id"] = $id;
 	if($flag == 'project') {
 		$sql = "SELECT * FROM project WHERE id = '$id'";
 		$res=$conn->query($sql);
@@ -14,6 +17,7 @@
 				$ret_data["number"] = $row["number"];
 				$ret_data["date"] = $row["end_date"];
 				$ret_data["remark"] = $row["remark"];
+				$ret_data["id"]=$id;
 				$modid = $row["modid"];
 			}
 			$ret_data["success"] = 'success';
@@ -95,7 +99,33 @@
 				}
 			}
 		}
+	} else if($flag=='savepro'){
+		$date = isset($_POST["date"])?$_POST["date"]:'';
+		$remark = isset($_POST["remark"])?$_POST["remark"]:'';
+		$sql = "UPDATE project SET end_date='$date',remark='$remark' WHERE id = '$id'";
+		$res = $conn->query($sql);
+		$ret_data["success"] = "success";
+	}else if($flag == "addmpart") {
+		$name = isset($_POST["name"])?$_POST["name"]:'';
+		$figure_number = isset($_POST["figure_number"])?$_POST["figure_number"]:'';
+		$standard = isset($_POST["standard"])?$_POST["standard"]:'';
+		$count = isset($_POST["count"])?$_POST["count"]:'';
+		$modid = isset($_POST["modid"])?$_POST["modid"]:'';
+		$remark = isset($_POST["remark"])?$_POST["remark"]:'';
+		$routel = isset($_POST["routel"])?$_POST["routel"]:'';
+		$sql = "INSERT INTO part (name,fid,belong_part,figure_number,standard,count,modid,remark,isfinish)  VALUES('$name','$id','','$figure_number','$standard','$count','$modid','$remark','0')";
+		$res = $conn->query($sql);
+		$ret_data["success"]='success';
+		if($routel){
+			$route_arr = explode('→',$routel);
+				$length = count($route_arr);
+				for($route_i=1;$route_i<$length;$route_i++){
+					$bsql = "INSERT INTO route VALUES(null,'$id','$modid','$route_arr[$route_i]','$route_i','$routel','0')";
+					$bres = $conn->query($bsql);
+				}
+		}
 	}
+	
 	$conn->close();
 	$json = json_encode($ret_data);
 	echo $json;
