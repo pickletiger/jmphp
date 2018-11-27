@@ -7,6 +7,8 @@
 	
 //	$ret_data["flag"] = $flag;
 //	$ret_data["id"] = $id;
+	
+	//获取项目信息
 	if($flag == 'project') {
 		$sql = "SELECT * FROM project WHERE id = '$id'";
 		$res=$conn->query($sql);
@@ -22,7 +24,7 @@
 			}
 			$ret_data["success"] = 'success';
 		}
-		$mysql = "SELECT id,route, isfinish FROM route WHERE modid = '$modid' ORDER BY id ASC";
+		$mysql = "SELECT id,route, isfinish FROM route WHERE pid <> '0'	AND  modid = '$modid' ORDER BY id ASC";
 		$myres = $conn->query($mysql);
 		if($myres->num_rows>0){
 			$x=0;
@@ -49,7 +51,9 @@
 				}
 			}
 		}
-	}else if($flag == 'prosch'){
+	}
+	//项目工艺路线
+	else if($flag == 'prosch'){
 		$sql = "SELECT * FROM project WHERE id = '$id'";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
@@ -68,7 +72,7 @@
 			$i=0;
 			while($arow=$ares->fetch_assoc()){
 				$modid = $arow["modid"];
-				$bsql="SELECT id,route,isfinish FROM route WHERE modid = '$modid' ORDER BY id ASC";
+				$bsql="SELECT id,route,isfinish FROM route WHERE pid <> '0' AND modid = '$modid' ORDER BY id ASC";
 				$bres=$conn->query($bsql);
 				if($bres->num_rows>0){
 					$x=0;
@@ -99,13 +103,17 @@
 				}
 			}
 		}
-	} else if($flag=='savepro'){
+	}
+	//项目信息修改 
+	else if($flag=='savepro'){
 		$date = isset($_POST["date"])?$_POST["date"]:'';
 		$remark = isset($_POST["remark"])?$_POST["remark"]:'';
 		$sql = "UPDATE project SET end_date='$date',remark='$remark' WHERE id = '$id'";
 		$res = $conn->query($sql);
 		$ret_data["success"] = "success";
-	}else if($flag == "addmpart") {
+	}
+	//增加项目下子部件
+	else if($flag == "addmpart") {
 		$name = isset($_POST["name"])?$_POST["name"]:'';
 		$figure_number = isset($_POST["figure_number"])?$_POST["figure_number"]:'';
 		$standard = isset($_POST["standard"])?$_POST["standard"]:'';
@@ -124,6 +132,29 @@
 					$bres = $conn->query($bsql);
 				}
 		}
+	}
+	//删除项目
+	else if($flag == "delpro"){
+		//删除项目
+		$sql = "DELETE FROM project WHERE id='$id'";
+		$res=$conn->query($sql);
+		//将所属部件假删除
+		$asql = "DELETE FROM part WHERE fid='$id'";
+		$ares=$conn->query($asql);
+		//将所属部件的工艺路线假删除
+		$bsql = "DELETE FROM route WHERE pid='$id'";
+		$bres=$conn->query($bsql);
+		$ret_data["success"] = "success";
+		
+	}
+	//项目审核
+	else if($flag == "proreview") {
+		$id = isset($_POST["id"])?$_POST["id"]:'';
+		$date = isset($_POST["date"])?$_POST["date"]:'';
+		$remark = ($_POST["remark"])?$_POST["remark"]:'';
+		$sql = "UPDATE project SET end_date='$date',remark='$remark',isfinish='0' WHERE id = '$id'";
+		$res=$conn->query($sql);
+		$ret_data["success"]='success';
 	}
 	
 	$conn->close();

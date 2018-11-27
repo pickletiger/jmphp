@@ -21,7 +21,7 @@
 			}
 			$ret_data["success"] = 'success';
 		}
-		$mysql = "SELECT id,route, isfinish FROM route WHERE modid = '$modid' ORDER BY id ASC";
+		$mysql = "SELECT id,route, isfinish FROM route WHERE pid <> '0' AND modid = '$modid' ORDER BY id ASC";
 		$myres = $conn->query($mysql);
 		if($myres->num_rows>0){
 			$x=0;
@@ -60,7 +60,7 @@
 		
 		$str = $figure_number.'&'.$name;
 		
-		$asql = "SELECT id,modid,name FROM part  WHERE belong_part = '$str' ";
+		$asql = "SELECT id,modid,name FROM part  WHERE fid <> '0' AND belong_part = '$str' ";
 		$ares=$conn->query($asql);
 		//判断belong_part字段是否是&拼接的,如不是则执行if
 		if($ares->num_rows>0){ 
@@ -69,7 +69,7 @@
 			while($arow=$ares->fetch_assoc()){
 				$modid = $arow["modid"];
 				$ret_data["item"][$i]["id"]=$arow["id"];
-				$bsql="SELECT id,route,isfinish FROM route WHERE modid = '$modid' ORDER BY id ASC";
+				$bsql="SELECT id,route,isfinish FROM route WHERE pid<>'0' AND modid = '$modid' ORDER BY id ASC";
 				$bres=$conn->query($bsql);
 				if($bres->num_rows>0){
 					$x=0;
@@ -109,7 +109,7 @@
 				while($crow=$cres->fetch_assoc()){
 					$modid = $crow["modid"];
 					$ret_data["item"][$i]["id"]=$crow["id"];
-					$dsql="SELECT id,route,isfinish FROM route WHERE modid = '$modid' ORDER BY id ASC";
+					$dsql="SELECT id,route,isfinish FROM route WHERE pid <>'0' AND modid = '$modid' ORDER BY id ASC";
 					$dres=$conn->query($dsql);
 					if($dres->num_rows>0){
 						$x=0;
@@ -215,7 +215,7 @@
 			$route_arr = explode('→',$routel);
 				$length = count($route_arr);
 				for($route_i=1;$route_i<$length;$route_i++){
-					$bsql = "INSERT INTO route VALUES(null,'$fid','$modid','$route_arr[$route_i]','$route_i','$routel','0')";
+					$bsql = "INSERT INTO route VALUES(null,'$fid','$modid','$route_arr[$route_i]','$route_i','$routel','0',null,null,null,null)";
 					$bres = $conn->query($bsql);
 				}
 		}
@@ -229,6 +229,89 @@
 		$sql = "UPDATE part SET name='$name',standard='$standard',count='$count',remark='$remark' WHERE id = '$id'";
 		$res=$conn->query($sql);
 		$ret_data["success"] = 'success';
+	}
+	//删除部件
+	else if($flag=="delpart") {
+		//继续循环的状态
+		$state = 0;
+		//删除的所有部件id，存入该数组中
+		$delarr = array();
+		$delarr[]= $id;
+		//执行的查找部件及其子部件的动态数组
+		$handarr=array();
+		$handarr[]=$id;
+		//循环查找部件及其之下的所有部件
+		while($state == 0) {
+			//结果数组 
+			$resarr = array();
+			$length = count($handarr);
+			for($i=0;$i<$length;$i++){
+				$sql = "SELECT fid,name,figure_number FROM part WHERE id = '$handarr[$i]'";
+				$res = $conn->query($sql);
+				if($res->num_rows>0){
+					while($row=$res->fetch_assoc()){
+						if($row["figure_number"] == $row["name"]){
+							$belong_part = $row["figure_number"];
+							$fid = $row["fid"];
+						}else {
+							$belong_part = $row["figure_number"].'&'.$row["name"];
+							$fid = $row["fid"];
+						}
+					}
+				}
+				$asql = "SELECT id FROM part WHERE fid='$fid' AND belong_part = '$belong_part'";
+				$ares = $conn->query($asql);
+				if($ares->num_rows>0){
+					while($arow=$ares->fetch_assoc()){
+						$resarr[]=$arow["id"];
+						$delarr[]=$arow["id"];
+					}
+				}
+			}
+			$handarr =array();
+			$handarr = $resarr;
+//			$ret_data = $handarr;
+//			$ret_data[] = count($handarr);
+			if(count($handarr)==0){
+				$state =1;
+			}
+		}
+		$ret_data = $delarr;
+		$length = count($delarr);
+		for($i=0;$i<$length;$i++){
+			$bsql = "UPDATE part SET fid='0' WHERE id='$delarr[$i]'";
+			$bres =$conn->query($bsql);
+		}
+		$ret_data["success"] = "success";
+	}
+	else if($flag=='qrcode'){
+		$sql = "SELECT name,figure_number,fid,count,child_material,modid FROM part WHERE id='$id'";
+		$res = $conn->query($sql);
+		if($res->num_rows>0){
+			while($row=$res->fetch_assoc()){
+				$ret_data["name"] = $row["name"];
+				$ret_data["figure_number"] = $row["figure_number"];
+				$fid = $row["fid"];
+				$ret_data["count"] = $row["count"];
+				$ret_data["child_material"]=$row["child_material"];
+				$modid =$row["modid"];
+			}
+		}
+		$asql = "SELECT route FROM route WHERE pid='$fid' AND modid='$modid' AND isfinish='0' ORDER BY id LIMIT 1";
+		$ares = $conn->query($asql);
+		if($ares->num_rows>0){
+			while($arow=$ares->fetch_assoc()){
+				$ret_data["next"] = $arow["route"];
+			}
+		}
+		$bsql = "SELECT number FROM project WHERE id='$fid'";
+		$bres = $conn->query($bsql);
+		if($bres->num_rows>0){
+			while($brow=$bres->fetch_assoc()){
+				$str = explode('#',$brow["number"]);
+				$ret_data["pro"] = $str[0].'#';
+			}
+		}
 	}
 	$conn->close();
 	$json = json_encode($ret_data);
