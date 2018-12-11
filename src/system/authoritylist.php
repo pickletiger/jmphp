@@ -24,7 +24,10 @@
 		$size = $_POST["size"]; //姓名
 		$place = $_POST["place"]; //手机号码
 		$date  = $_POST["date"]; //职位
-		$sql = "UPDATE user SET name = '$size',phone_number = '$place',job = '$date' WHERE gNum = '$gNum'";
+		if(strlen($gNum) > 0){
+			$sql = "UPDATE user SET gNum = '$gNum',name = '$size',phone_number = '$place',job = '$date' WHERE gNum = '$gNum' or name = '$size'";
+		}else{}
+		
 		$res=$conn->query($sql);
 		if($res==true){
 			$ret_data["success"] = 'success';
