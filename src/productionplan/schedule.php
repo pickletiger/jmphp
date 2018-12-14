@@ -17,7 +17,7 @@
   $mod_length = count($modidArr);
   $station_length = count($stationArr);
 
- 
+  // 插入排产数据
   for($i = 0; $i < $mod_length; $i++) {
     for($j = 0; $j < $station_length; $j++) {
       echo $stationArr[$j] . "||";
@@ -26,5 +26,10 @@
       $conn->query($sql);    
     }
   } 
-  
+
+  // 更新路线route状态
+  $sql2 = "UPDATE route SET isfinish='3' where id='$routeid' ";
+  $conn->query($sql2);
+
+  $conn->close();
 ?>

@@ -49,7 +49,6 @@
   $json = '{"success":true,"rows":'.$list_data.',"fName":'.$fName.',"fFigure_number":'.$fFigure_number.'}';
 
   // 已排产数据列表
-  // $sql4 = "SELECT A.id,A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,GROUP_CONCAT(station) as station,D.schedule_date FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid GROUP BY modid";
   $sql4 = "SELECT A.id,A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
   $res4 = $conn->query($sql4);
   if($res4->num_rows > 0 ){
