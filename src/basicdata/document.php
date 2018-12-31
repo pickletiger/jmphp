@@ -13,8 +13,93 @@
 
 	
 	switch($flag){
+		case "getTreeListData": //----------------获取树节点信息----------------------
+			//返回给前端的数据
+			$returnData = array(
+				"state" => "success",
+				"message" => "",
+				"data" => array(
+					0 => array(
+						"label" => "焊接工艺及检验记录",
+						"children" => array()
+					),
+					1 => array(
+						"label" => "机械制造工艺及检验表",
+						"children" => array()
+					)
+				)
+			);
+			
+			//查询焊接表
+			$sql = "SELECT `id`,`proname` FROM `weldingtree`";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				$i = 0;
+				while($row = $result->fetch_assoc()){
+					$returnData["data"][0]["children"][$i]["tableFlag"] = 1;//用于判断焊接还是制造：1为焊接，2为工艺
+					$returnData["data"][0]["children"][$i]["label"] = $row["proname"];
+					$returnData["data"][0]["children"][$i]["relateId"] = $row["id"];
+					$i++;
+				}
+			}
+			
+			//查询制造表																																																													表
+			$sql = "SELECT `id`,`proname` FROM `craftsmanshiptree`";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				$i = 0;
+				while($row = $result->fetch_assoc()){
+					$returnData["data"][1]["children"][$i]["tableFlag"] = 2;//用于判断焊接还是制造：1为焊接，2为工艺
+					$returnData["data"][1]["children"][$i]["label"] = $row["proname"];
+					$returnData["data"][1]["children"][$i]["relateId"] = $row["id"];
+					$i++;
+				}
+			}
+			
+			
+			$json = json_encode($returnData);
+			echo $json;
+			break;
+		
+		case "saveTreeListData": //--------------------保存新建树节点------------------------
+			//接收数据
+			$tableFlag = isset($_POST["tableFlag"]) ? $_POST["tableFlag"] :"";//判断保存到焊接还是工艺的表:1为焊接，2为工艺
+			$proname = isset($_POST["proname"]) ? $_POST["proname"] :"";
+			$procode = isset($_POST["procode"]) ? $_POST["procode"] :"";
+			
+			//返回给前端的数据
+			$returnData = array(
+				"state" => "success",
+				"message" => ""				
+			);
+			
+			switch($tableFlag){
+				case "1": //表【weldingtree】
+					$sql = "INSERT INTO `weldingtree`(`proname`,`procode`,`ctime`) VALUES('".$proname."','".$procode."','".time()."')";
+					if(!$conn->query($sql)){
+						$returnData["state"] = "fail";
+						$returnData["message"] = "服务器错误";
+					}
+					break;
+				case "2"://表【craftsmanshiptree】
+					$sql = "INSERT INTO `craftsmanshiptree`(`proname`,`procode`,`ctime`) VALUES('".$proname."','".$procode."','".time()."')";
+					if(!$conn->query($sql)){
+						$returnData["state"] = "fail";
+						$returnData["message"] = "服务器错误";
+					}
+					break;
+				default :
+					$returnData["state"] = "fail";
+					$returnData["message"] = "没有对应的表标志";
+			}
+
+			$json = json_encode($returnData);
+			echo $json;
+			break;
+		
 		case "insertData" ://------------插入新的焊接数据------------------
 			//接收数据
+			$treeId = isset($_POST["treeId"]) ? $_POST["treeId"] :"";//表【weldingtree】的id
 			$weldingtable = isset($_POST["weldingtable"]) ? json_decode($_POST["weldingtable"],TRUE) : array();
 			$weldingtableone = isset($_POST["weldingtableone"]) ? json_decode($_POST["weldingtableone"],TRUE) : array();
 			$weldingtabletwo = isset($_POST["weldingtabletwo"]) ? json_decode($_POST["weldingtabletwo"],TRUE) : array();
@@ -38,8 +123,8 @@
 			}
 			
 			//保存首表信息，返回自增id
-			$sql = "INSERT INTO `weldingtable`(`processnumber`,`quantity`,`workpiecenumber`,`workshop`,`workordernumber`,`producname`,`productcode`,`partname`,`partdrawingnumber`,`finallyresult`,`inspectorsingnature`,`finallydate`,`weldingsequence`,`weldingnumbermap`,`ctime`) VALUES(";
-			$sql .= "'".$weldingtable["processNumber"]."','".$weldingtable["quantity"]."','".$weldingtable["workpieceNumber"]."','".$weldingtable["workshop"]."','".$weldingtable["workOrderNumber"]."','".$weldingtable["productName"]."','".$weldingtable["productCode"]."','".$weldingtable["partName"]."','".$weldingtable["partDrawingNumber"]."','".$weldingtable["finalInspectionResult"]."','".$weldingtable["inspectorSingnature"]."','".$weldingtable["date"]."','".$weldingtable["weldingSequence"]."','".$fileSaveSql."','".time()."')";
+			$sql = "INSERT INTO `weldingtable`(`weldingtree_id`,`processnumber`,`quantity`,`workpiecenumber`,`workshop`,`workordernumber`,`producname`,`productcode`,`partname`,`partdrawingnumber`,`finallyresult`,`inspectorsingnature`,`finallydate`,`weldingsequence`,`weldingnumbermap`,`ctime`) VALUES(";
+			$sql .= "'".$treeId."','".$weldingtable["processNumber"]."','".$weldingtable["quantity"]."','".$weldingtable["workpieceNumber"]."','".$weldingtable["workshop"]."','".$weldingtable["workOrderNumber"]."','".$weldingtable["productName"]."','".$weldingtable["productCode"]."','".$weldingtable["partName"]."','".$weldingtable["partDrawingNumber"]."','".$weldingtable["finalInspectionResult"]."','".$weldingtable["inspectorSingnature"]."','".$weldingtable["date"]."','".$weldingtable["weldingSequence"]."','".$fileSaveSql."','".time()."')";
 			$autoIncrementId = $conn->query($sql) ? $conn->insert_id : "";//获取成功插入后的id
 			
 			if(!empty($autoIncrementId)){
@@ -181,6 +266,10 @@
 			break;
 		
 		case "getTableListData" ://--------------查询焊接与制作工艺表格列表信息------------------
+			//接收数据
+			$tableFlag = isset($_GET["tableFlag"]) ? $_GET["tableFlag"] :"";//1为焊接，2为制造
+			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] :"";
+			
 			//返回信息
 			$returnData = array(
 				"state" => "success",
@@ -188,28 +277,42 @@
 				"data" => array()
 			);
 			
-			//装载数据-焊接信息
-			$sql = "SELECT `id` AS `contactId`,`productcode`,`processnumber`,`producname`,`partname`,FROM_UNIXTIME(`ctime`,'%Y-%m-%d %H:%i:%s') AS ctime,'welding' AS diff FROM `weldingtable`";
-			$result = $conn->query($sql);
-			if($result->num_rows > 0){
-				$returnData["message"] = "获取成功";
-				$i = 0;
-				while($row = $result->fetch_assoc()){
-					$returnData["data"][$i] = $row;
-					$i++;
-				}
-			}else{
-				$returnData["message"] = "没有数据";
+			switch($tableFlag){
+				case "1":
+					//装载数据-焊接信息
+					$sql = "SELECT `id` AS `contactId`,`productcode`,`processnumber`,`producname`,`partname`,FROM_UNIXTIME(`ctime`,'%Y-%m-%d %H:%i:%s') AS ctime,'welding' AS diff FROM `weldingtable` WHERE `weldingtree_id`='".$relateId."'";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						$returnData["message"] = "获取成功";
+						$i = 0;
+						while($row = $result->fetch_assoc()){
+							$returnData["data"][$i] = $row;
+							$i++;
+						}
+					}else{
+						$returnData["message"] = "没有数据";
+					}
+					break;
+				case "2":
+					//装载数据-制造信息
+					$sql = "SELECT `id` AS `contactId`,`productdrawnumber` AS `productcode`,`ownpartdrawnumber` AS `processnumber`,productname AS `producname`,`partname`,FROM_UNIXTIME(`ctime`,'%Y-%m-%d %H:%i:%s') AS ctime,'craftsmanship' AS diff FROM `craftsmanshiptable` WHERE `craftsmanshiptree_id`='".$relateId."'";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						$returnData["message"] = "获取成功";
+						$i = 0;
+						while($row = $result->fetch_assoc()){
+							$returnData["data"][$i] = $row;
+							$i++;
+						}
+					}else{
+						$returnData["message"] = "没有数据";
+					}
+					break;
+				default :
+					
 			}
-			//装载数据-制造信息
-			$sql = "SELECT `id` AS `contactId`,`productdrawnumber` AS `productcode`,`ownpartdrawnumber` AS `processnumber`,productname AS `producname`,`partname`,FROM_UNIXTIME(`ctime`,'%Y-%m-%d %H:%i:%s') AS ctime,'craftsmanship' AS diff FROM `craftsmanshiptable`";
-			$result = $conn->query($sql);
-			if($result->num_rows > 0){
-				while($row = $result->fetch_assoc()){
-					$returnData["data"][$i] = $row;
-					$i++;
-				}
-			}
+			
+			
 			
 			$json = json_encode($returnData);
 			echo $json;
@@ -359,8 +462,66 @@
 			echo $json;
 			break;
 		
+		case "DeleteWelding": //--------------------------------根据ID删除焊接信息----------------------------------------
+			//接收数据
+			$contactId = isset($_GET["contactId"]) ? $_GET["contactId"] : "";
+			
+			//返回数据
+			$returnData = array(
+				"state" => "success",
+				"message" => ""				
+			);
+			//删除表【weldingtable】的图片
+			$sql = "SELECT `weldingnumbermap` FROM `weldingtable` WHERE `id`='".$contactId."'";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					if(!empty($row["weldingnumbermap"])){
+						$savePath = "../".$row["weldingnumbermap"];
+						if(file_exists($savePath)){
+							@unlink($savePath);
+						}
+					}
+				}
+			}
+			//删除表【weldingtable】的数据
+			$sql = "DELETE FROM `weldingtable` WHERE `id`='".$contactId."'";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表weldingtable记录删除失败；";
+			}
+			//删除表【weldingtableone】的数据
+			$sql = "DELETE FROM `weldingtableone` WHERE `weldingtable_id`='".$contactId."'";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表weldingtableone记录删除失败；";
+			}
+			//删除表【weldingtabletwo】的数据
+			$sql = "DELETE FROM `weldingtabletwo` WHERE `weldingtable_id`='".$contactId."'";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表weldingtabletwo记录删除失败；";
+			}
+			//删除表【weldingtablethree】的数据
+			$sql = "DELETE FROM `weldingtablethree` WHERE `weldingtable_id`='".$contactId."'";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表weldingtablethree记录删除失败；";
+			}
+			//删除表【weldingtablefour】的数据
+			$sql = "DELETE FROM `weldingtablefour` WHERE `weldingtable_id`='".$contactId."'";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表weldingtablefour记录删除失败；";
+			}
+			
+			$json = json_encode($returnData);
+			echo $json;
+			break;
+			
 		case "craftsmanshipInsertDataOne" ://产品制作工艺技术要求及检验记录表信息保存【插入】【模板一】
 			//接收数据
+			$treeId = isset($_POST["treeId"]) ? $_POST["treeId"] :"";//表【craftsmanshiptree】的id
 			$craftsmanshipTableHeader = isset($_POST["craftsmanshipTableHeader"]) ? json_decode($_POST["craftsmanshipTableHeader"],TRUE) : array();
 			$craftsmanshipTableBody_1 = isset($_POST["craftsmanshipTableBody_1"]) ? json_decode($_POST["craftsmanshipTableBody_1"],TRUE) : array();
 			$craftsmanshipTableBodyResult = isset($_POST["craftsmanshipTableBodyResult"]) ? json_decode($_POST["craftsmanshipTableBodyResult"],TRUE) : array();
@@ -375,9 +536,9 @@
 			
 			//保存单一信息
 			if(count($craftsmanshipTableHeader) > 0){
-				$sql = "INSERT INTO `craftsmanshiptable`(`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
+				$sql = "INSERT INTO `craftsmanshiptable`(`craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
 				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`ctime`) VALUES(";
-				$sql .= "'1'";
+				$sql .= "'".$treeId."','1'";
 				$sql .= ",'".$craftsmanshipTableHeader["productName"]."','".$craftsmanshipTableHeader["ownPartName"]."','".$craftsmanshipTableHeader["partsName"]."','".$craftsmanshipTableHeader["workpieceNumber"]."'";
 				$sql .= ",'".$craftsmanshipTableHeader["productDrawingNumber"]."','".$craftsmanshipTableHeader["ownPartDrawingNumber"]."','".$craftsmanshipTableHeader["partsDrawingNumber"]."','".$craftsmanshipTableHeader["quantity"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["finalConclusion"]."','".$craftsmanshipTableFooter["inspector"]."','".$craftsmanshipTableFooter["inspectionAudit"]."','".$craftsmanshipTableFooter["mark"]."','".$craftsmanshipTableFooter["numberOfPlaces"]."'";
@@ -472,6 +633,7 @@
 		
 		case "craftsmanshipInsertDataTwo": //产品制作工艺技术要求及检验记录表信息保存【插入】【模板二】
 			//接收数据
+			$treeId = isset($_POST["treeId"]) ? $_POST["treeId"] :"";//表【craftsmanshiptree】的id
 			$craftsmanshipTableHeader = isset($_POST["craftsmanshipTableHeader"]) ? json_decode($_POST["craftsmanshipTableHeader"],TRUE) : array();
 			$craftsmanshipTableBody_2 = isset($_POST["craftsmanshipTableBody_2"]) ? json_decode($_POST["craftsmanshipTableBody_2"],TRUE) : array();
 			$craftsmanshipTableBodyResult = isset($_POST["craftsmanshipTableBodyResult"]) ? json_decode($_POST["craftsmanshipTableBodyResult"],TRUE) : array();
@@ -513,9 +675,9 @@
 			
 			//保存单一信息
 			if(count($craftsmanshipTableHeader) > 0){
-				$sql = "INSERT INTO `craftsmanshiptable`(`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
+				$sql = "INSERT INTO `craftsmanshiptable`(`craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
 				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`secondmodelimageone`,`secondmodelimagetwo`,`secondmodelimagethree`,`ctime`) VALUES(";
-				$sql .= "'2'";
+				$sql .= "'".$treeId."','2'";
 				$sql .= ",'".$craftsmanshipTableHeader["productName"]."','".$craftsmanshipTableHeader["ownPartName"]."','".$craftsmanshipTableHeader["partsName"]."','".$craftsmanshipTableHeader["workpieceNumber"]."'";
 				$sql .= ",'".$craftsmanshipTableHeader["productDrawingNumber"]."','".$craftsmanshipTableHeader["ownPartDrawingNumber"]."','".$craftsmanshipTableHeader["partsDrawingNumber"]."','".$craftsmanshipTableHeader["quantity"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["finalConclusion"]."','".$craftsmanshipTableFooter["inspector"]."','".$craftsmanshipTableFooter["inspectionAudit"]."','".$craftsmanshipTableFooter["mark"]."','".$craftsmanshipTableFooter["numberOfPlaces"]."'";
@@ -674,6 +836,7 @@
 		
 		case "craftsmanshipInsertDataThree"://产品制作工艺技术要求及检验记录表信息保存【插入】【模板三】
 			//接收数据
+			$treeId = isset($_POST["treeId"]) ? $_POST["treeId"] :"";//表【craftsmanshiptree】的id
 			$craftsmanshipTableHeader = isset($_POST["craftsmanshipTableHeader"]) ? json_decode($_POST["craftsmanshipTableHeader"],TRUE) : array();
 			$craftsmanshipTableFooter = isset($_POST["craftsmanshipTableFooter"]) ? json_decode($_POST["craftsmanshipTableFooter"],TRUE) : array();
 			
@@ -700,9 +863,9 @@
 			
 			//保存单一信息
 			if(count($craftsmanshipTableHeader) > 0){
-				$sql = "INSERT INTO `craftsmanshiptable`(`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
+				$sql = "INSERT INTO `craftsmanshiptable`(`craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
 				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`thirdmodelimage`,`ctime`) VALUES(";
-				$sql .= "'3'";
+				$sql .= "'".$treeId."','3'";
 				$sql .= ",'".$craftsmanshipTableHeader["productName"]."','".$craftsmanshipTableHeader["ownPartName"]."','".$craftsmanshipTableHeader["partsName"]."','".$craftsmanshipTableHeader["workpieceNumber"]."'";
 				$sql .= ",'".$craftsmanshipTableHeader["productDrawingNumber"]."','".$craftsmanshipTableHeader["ownPartDrawingNumber"]."','".$craftsmanshipTableHeader["partsDrawingNumber"]."','".$craftsmanshipTableHeader["quantity"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["finalConclusion"]."','".$craftsmanshipTableFooter["inspector"]."','".$craftsmanshipTableFooter["inspectionAudit"]."','".$craftsmanshipTableFooter["mark"]."','".$craftsmanshipTableFooter["numberOfPlaces"]."'";
@@ -909,8 +1072,503 @@
 			$json = json_encode($returnData);
 			echo $json;
 			break;
+		case "deleteCraftsmanship": //----------------------------------根据【craftsmanshiptable】ID删除制造工艺信息--------------------------------------------------
+			//接收数据
+			$contactId = isset($_GET["contactId"]) ? $_GET["contactId"] : "";
+			
+			//返回数据
+			$returnData = array(
+				"state" => "success",
+				"message" => ""				
+			);
+			
+			//删除【craftsmanshiptable】的模板二的图，模板三的图
+			$sql = "SELECT `secondmodelimageone`,`secondmodelimagetwo`,`secondmodelimagethree`,`thirdmodelimage` FROM `craftsmanshiptable` WHERE `id`='".$contactId."'";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				$savePathArr = array();
+				while($row = $result->fetch_assoc()){
+					$savePathArr[0] = $row["secondmodelimageone"];
+					$savePathArr[1] = $row["secondmodelimagetwo"];
+					$savePathArr[2] = $row["secondmodelimagethree"];
+					$savePathArr[3] = $row["thirdmodelimage"];
+				}				
+				foreach($savePathArr as $index => $savePath){
+					if(!empty($savePath)){
+						$realsavePath = "../".$savePath;
+						if(file_exists($realsavePath)){
+							@unlink($realsavePath);
+						}
+					}
+				}
+			}
+			//删除【craftsmanshiptable】表记录
+			$sql = "DELETE FROM `craftsmanshiptable` WHERE `id`='".$contactId."' ";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表craftsmanshiptable记录删除失败";
+			}
+			//删除【craftsmanshiptableone】表记录
+			$sql = "DELETE FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$contactId."' ";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表craftsmanshiptableone记录删除失败";
+			}
+			//删除【craftsmanshiptabletwo】表记录
+			$sql = "DELETE FROM `craftsmanshiptabletwo` WHERE `craftsmanship_id`='".$contactId."' ";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "表craftsmanshiptabletwo记录删除失败";
+			}
+			
+			$json = json_encode($returnData);
+			echo $json;
+			break;
 		
+		case "getWeldingPrintData"://----------------------------焊接工艺及检验记录打印--------------------------------------
+			//接收数据
+			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] : "";//表【weldingtree】的id
+			
+			//返回数据
+			$ret_data = array(
+				"state" => "success",
+				"message" => "",
+				"data" => array(
+					"detailList" => array(),
+					"weldingInfo" => array()
+				)
+			);
+			
+			$weldingtableIdArr = array();//用于查询焊接的各部位的详细信息
+			
+			//初始化明细表
+			for($i = 0;$i <= 18;$i++ ){
+				$ret_data["data"]["detailList"][$i]["serial"] = $i+1;//序号				
+			}			
+			//装载明细表数据
+			$sql = "SELECT `id`,`processnumber`,`producname`,`productcode` FROM weldingtable WHERE `weldingtree_id`='".$relateId."'";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				$i = 0;
+				while($row = $result->fetch_assoc()){
+					$weldingtableIdArr[] = $row["id"];
+					
+					$ret_data["data"]["detailList"][$i]["processnumber"] = $row["processnumber"];
+					$ret_data["data"]["detailList"][$i]["producname"] = $row["producname"];
+					$ret_data["data"]["detailList"][$i]["productcode"] = $row["productcode"];
+					$ret_data["data"]["detailList"][$i]["pageNum"] = 3;
+					$ret_data["data"]["detailList"][$i]["level"] = "A";
+					$i++;
+				}
+			}
+			
+			//查询焊接的各部位的详细信息
+			foreach($weldingtableIdArr as $indexNum => $contactId){
+				if(!empty($contactId)){
+					//查询首表信息
+					$sql = "SELECT `processnumber`,`quantity`,`workpiecenumber`,`workshop`,`workordernumber`,`producname`,`productcode`,`partname`,`partdrawingnumber`,`finallyresult`,`inspectorsingnature`,`finallydate`,`weldingsequence`,`weldingnumbermap` FROM `weldingtable` WHERE `id`='".$contactId."'";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["contactId"] = $contactId;
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["processNumber"] = $row["processnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["quantity"] = $row["quantity"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["workpieceNumber"] = $row["workpiecenumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["workshop"] = $row["workshop"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["workOrderNumber"] = $row["workordernumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["productName"] = $row["producname"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["productCode"] = $row["productcode"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["partName"] = $row["partname"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableOne"]["partDrawingNumber"] = $row["partdrawingnumber"];
+							
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_3"]["finalInspectionResult"] = $row["finallyresult"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_3"]["inspectorSingnature"] = $row["inspectorsingnature"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_3"]["date"] = $row["finallydate"];
+							
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldngTableFour"]["weldingSequence"] = $row["weldingsequence"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldngTableFour"]["weldNumberMap"] = $row["weldingnumbermap"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldngTableFour"]["imgHtm"] = "";
+							
+						}
+					}
+					//查询第一个表
+					$sql = "SELECT `weldingnumber`,`materialfirst`,`specificationsfirst`,`materialsecond`,`specificationssecond`,`weldingmethod`,`grooveform`,`consumables`,`specifications`,`weldinglayer`,`weldingtrack`,`gas`,`current`,`actualcurrentfirst`,`actualcurrentsecond`,`voltage`,`actualvoltagefirst`,`actualvoltagesecond`,`specificationnumber`,`ratingnumber`,`flawdetection`,`steelstamp` FROM `weldingtableone` WHERE `weldingtable_id`='".$contactId."' ORDER BY `id`";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						$i = 0;
+						while($row = $result->fetch_assoc()){
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["weldNumber"] = $row["weldingnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["materialAndSpecifications_1"] = $row["materialfirst"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["materialAndSpecifications_1_thickness"] = $row["specificationsfirst"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["materialAndSpecifications_2"] = $row["materialsecond"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["materialAndSpecifications_2_thickness"] = $row["specificationssecond"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["weldingMethod"] = $row["weldingmethod"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["grooveForm"] = $row["grooveform"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["consumables"] = $row["consumables"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["specifications"] = $row["specifications"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["weldingLevel_numberOfLayers"] = $row["weldinglayer"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["weldingLevel_numberOftracks"] = $row["weldingtrack"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["protectiveGas"] = $row["gas"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["weldingCurrent"] = $row["current"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["actualCurrent_1"] = $row["actualcurrentfirst"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["actualCurrent_2"] = $row["actualcurrentsecond"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["weldingVoltage"] = $row["voltage"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["actualVoltage_1"] = $row["actualvoltagefirst"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["actualVoltage_2"] = $row["actualvoltagesecond"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["specificationNumber"] = $row["specificationnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["ratingNumber"] = $row["ratingnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["flawDetectionRequirements"] = $row["flawdetection"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_1"][$i]["steelStamp"] = $row["steelstamp"];
+							
+							$i++;
+						}
+					}
+					//查询第二个表
+					$sql = "SELECT `serialnumber`,`checkcontent`,`processrequirement`,`testresult`,`singnature` FROM `weldingtabletwo` WHERE `weldingtable_id`='".$contactId."' ORDER BY `id`";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						$i = 0;
+						while($row = $result->fetch_assoc()){
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_2"][$i]["serialNumber"] = $row["serialnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_2"][$i]["checkContent"] = $row["checkcontent"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_2"][$i]["processRequirements"] = $row["processrequirement"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_2"][$i]["testResult"] = $row["testresult"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableTwo_2"][$i]["inspectorSingnature"] = $row["singnature"];
+							
+							$i++;
+						}
+					}
+					//查询第三个表
+					$sql = "SELECT `weldingnumber`,`requirementone`,`testresultone`,`singnatureone`,`requirementtwo`,`testresultonetwo`,`singnatureonetwo`,`requirementthree`,`testresultonethree`,`singnatureonethree` FROM `weldingtablethree` WHERE `weldingtable_id`='".$contactId."' ORDER BY `id`";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						$i = 0;
+						while($row = $result->fetch_assoc()){
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["weldNumber"] = $row["weldingnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["processRequirements_1"] = $row["requirementone"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["testResult_1"] = $row["testresultone"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["inspectorSingnature_1"] = $row["singnatureone"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["processRequirements_2"] = $row["requirementtwo"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["testResult_2"] = $row["testresultonetwo"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["inspectorSingnature_2"] = $row["singnatureonetwo"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["processRequirements_3"] = $row["requirementthree"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["testResult_3"] = $row["testresultonethree"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_1"][$i]["inspectorSingnature_3"] = $row["singnatureonethree"];
+							
+							$i++;
+						}
+					}
+					//查询第四个表
+					$sql = "SELECT `weldingnumber`,`requirementone`,`testresultone`,`singnatureone`,`requirementtwo`,`testresultonetwo`,`singnatureonetwo`,`requirementthree`,`testresultonethree`,`singnatureonethree` FROM `weldingtablefour` WHERE `weldingtable_id`='".$contactId."' ORDER BY `id`";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						$i = 0;
+						while($row = $result->fetch_assoc()){
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["weldNumber"] = $row["weldingnumber"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["processRequirements_1"] = $row["requirementone"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["testResult_1"] = $row["testresultone"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["inspectorSingnature_1"] = $row["singnatureone"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["processRequirements_2"] = $row["requirementtwo"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["testResult_2"] = $row["testresultonetwo"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["inspectorSingnature_2"] = $row["singnatureonetwo"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["processRequirements_3"] = $row["requirementthree"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["testResult_3"] = $row["testresultonethree"];
+							$ret_data["data"]["weldingInfo"][$indexNum]["weldingTableThree_2"][$i]["inspectorSingnature_3"] = $row["singnatureonethree"];
+							
+							$i++;
+						}
+					}
+				}
+			}
+			
+			$json = json_encode($ret_data);
+			echo $json;
+			break;
 		
+		case "getCraftsmanshipPrintData"://----------------------------------制造工艺及检验表打印------------------------------------------
+			//接收数据
+			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] : "";//表【craftsmanshiptree】的id
+			
+			//返回数据
+			$returnData = array(
+				"state" => "success",
+				"message" => "",
+				"data" => array()
+			);
+			
+			$craftsmanshipIdArr = array();
+			//初始化数据形式
+			$sql = "SELECT `id` FROM `craftsmanshiptable` WHERE `craftsmanshiptree_id`='".$relateId."'";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				$i = 0;
+				while($row = $result->fetch_assoc()){
+					$craftsmanshipIdArr[$i] = $row["id"];
+					$returnData["data"][$i]["model"] = "";
+					$returnData["data"][$i]["craftsmanshipTableHeader"] = array();
+					$returnData["data"][$i]["craftsmanshipTableBody_1"] = array();//模板一
+					$returnData["data"][$i]["craftsmanshipTableBody_2"] = array();//模板二
+					$returnData["data"][$i]["craftsmanshipTableBody_3"] = array();//模板三
+					$returnData["data"][$i]["craftsmanshipTableBodyResult"] = array();//模板一、二
+					$returnData["data"][$i]["craftsmanshipTableFooter"] = array();
+					
+					$i++;
+				}
+			}
+			
+			foreach($craftsmanshipIdArr as $indexcraftsmanship => $contactId){
+				if(!empty($contactId)){
+					//主表信息
+					$sql = "SELECT * FROM `craftsmanshiptable` WHERE `id`='".$contactId."'";
+					$result = $conn->query($sql);
+					if($result->num_rows > 0){
+						while($row = $result->fetch_assoc()){
+							$returnData["data"][$indexcraftsmanship]["model"] = $row["model"];//返回模型值
+							//头部信息
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["contactId"] = $row["id"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["productName"] = $row["productname"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["ownPartName"] = $row["ownpartname"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["partsName"] = $row["partname"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["workpieceNumber"] = $row["workpiecenumber"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["productDrawingNumber"] = $row["productdrawnumber"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["ownPartDrawingNumber"] = $row["ownpartdrawnumber"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["partsDrawingNumber"] = $row["partdrawnumber"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableHeader"]["quantity"] = $row["quantity"];
+							
+							//尾部信息
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["finalConclusion"] = $row["finalconclusion"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["inspector"] = $row["inspector"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["inspectionAudit"] = $row["inspectionaudit"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["mark"] = $row["mark"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["numberOfPlaces"] = $row["numberofplaces"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["changeTheFileNumber"] = $row["changethefilenumber"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["signature"] = $row["signature"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["date"] = $row["date"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["establishment"] = $row["establishment"];
+							$returnData["data"][$indexcraftsmanship]["craftsmanshipTableFooter"]["review"] = $row["review"];
+							switch($row["model"]){//根据模型编号返回相应的信息
+								case "1":														
+									//结论与不符合确定【模板一、二】
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["conclusion"] = $row["conclusion"];
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["inconsistentConfirmation"] = $row["inconsistentconfirmation"];
+									
+									//模板一可遍历的数据
+									$sql = "SELECT * FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$row["id"]."' ORDER BY `id`";
+									$result_2 = $conn->query($sql);
+									if($result_2->num_rows > 0){
+										$i = 0;	
+										while($row_2 = $result_2->fetch_assoc()){
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["serialNumber"] = $row_2["serialnumber"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["processFlow"] = $row_2["processflow"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_13"] = $row_2["selftest_13"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_14"] = $row_2["selftest_14"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_15"] = $row_2["selftest_15"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_16"] = $row_2["selftest_16"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["signature_1"] = $row_2["signature_1"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["signatture_2"] = $row_2["signature_2"];
+											
+											$i++;
+										}
+									}							
+									break;
+								case "2":
+									//结论与不符合确定【模板一、二】
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["conclusion"] = $row["conclusion"];
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["inconsistentConfirmation"] = $row["inconsistentconfirmation"];
+									//图片信息
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["fileOne"] = $row["secondmodelimageone"];
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["fileTwo"] = $row["secondmodelimagetwo"];
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["fileThree"] = $row["secondmodelimagethree"];
+									//html容器
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["imgHtmlOne"] = "";
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["imgHtmlTwo"] = "";
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["imgHtmlTherr"] = "";
+									
+									//模板二可遍历的数据
+									$sql = "SELECT * FROM `craftsmanshiptabletwo` WHERE `craftsmanship_id`='".$row["id"]."' ORDER BY `id`";
+									$result_2 = $conn->query($sql);
+									if($result_2->num_rows > 0){
+										$i = 0;	
+										while($row_2 = $result_2->fetch_assoc()){
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["rowsData"][$i]["serialNumber"] = $row_2["serialnumber"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["rowsData"][$i]["processFlow"] = $row_2["processflow"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["rowsData"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["rowsData"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["rowsData"][$i]["selfTest"] = $row_2["selftest"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_2"]["rowsData"][$i]["signature"] = $row_2["signature"];
+											
+											$i++;
+										}
+									}
+									break;
+								case "3":
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_3"]["fileOne"] = $row["thirdmodelimage"];
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_3"]["imgHtml"] = "";
+									break;
+								default:
+									$returnData["state"] = "failure";
+									$returnData["message"] = "模型参数无效";					
+							}
+						}
+					}
+				}
+			}
+
+			$json = json_encode($returnData);
+			echo $json;
+			break;
+		case "deleteTreeNodeWelding": //-------------------------------删除焊接树节点--------------------------------------------------
+			//接收数据
+			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] : "";//表【weldingtree】的id
+			
+			//返回数据
+			$ret_data = array(
+				"state" => "success",
+				"message" => ""				
+			);
+			
+			//根据ID删除表【weldingtree】的记录
+			$sql = "DELETE FROM `weldingtree` WHERE `id`='".$relateId."'";
+			if(!$conn->query($sql)){
+				$ret_data["state"] = "fail";
+				$ret_data["message"] .= "【weldingtree】删除失败;";
+			}
+			
+			$contactIdArr = array();//表【weldingtable】的id
+			$sql = "SELECT `id` FROM `weldingtable` WHERE `weldingtree_id`='".$relateId."'";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$contactIdArr[] = $row["id"];
+				}
+			}
+			
+			foreach($contactIdArr as $index => $contactId){
+				//删除表【weldingtable】的图片
+				$sql = "SELECT `weldingnumbermap` FROM `weldingtable` WHERE `id`='".$contactId."'";
+				$result = $conn->query($sql);
+				if($result->num_rows > 0){
+					while($row = $result->fetch_assoc()){
+						if(!empty($row["weldingnumbermap"])){
+							$savePath = "../".$row["weldingnumbermap"];
+							if(file_exists($savePath)){
+								@unlink($savePath);
+							}
+						}
+					}
+				}
+				//删除表【weldingtable】的数据
+				$sql = "DELETE FROM `weldingtable` WHERE `id`='".$contactId."'";
+				if(!$conn->query($sql)){
+					$ret_data["state"] = "fail";
+					$ret_data["message"] .= "表weldingtable记录删除失败；";
+				}
+				//删除表【weldingtableone】的数据
+				$sql = "DELETE FROM `weldingtableone` WHERE `weldingtable_id`='".$contactId."'";
+				if(!$conn->query($sql)){
+					$ret_data["state"] = "fail";
+					$ret_data["message"] .= "表weldingtableone记录删除失败；";
+				}
+				//删除表【weldingtabletwo】的数据
+				$sql = "DELETE FROM `weldingtabletwo` WHERE `weldingtable_id`='".$contactId."'";
+				if(!$conn->query($sql)){
+					$ret_data["state"] = "fail";
+					$ret_data["message"] .= "表weldingtabletwo记录删除失败；";
+				}
+				//删除表【weldingtablethree】的数据
+				$sql = "DELETE FROM `weldingtablethree` WHERE `weldingtable_id`='".$contactId."'";
+				if(!$conn->query($sql)){
+					$ret_data["state"] = "fail";
+					$ret_data["message"] .= "表weldingtablethree记录删除失败；";
+				}
+				//删除表【weldingtablefour】的数据
+				$sql = "DELETE FROM `weldingtablefour` WHERE `weldingtable_id`='".$contactId."'";
+				if(!$conn->query($sql)){
+					$ret_data["state"] = "fail";
+					$ret_data["message"] .= "表weldingtablefour记录删除失败；";
+				}
+			}
+						
+			$json = json_encode($ret_data);
+			echo $json;
+			break;
+		
+		case "deleteTreeNodeCraftsmanship";//--------------------------根据ID删除制造的树节点--------------------------------------------------
+			//接收数据
+			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] : "";//表【craftsmanshiptree】的id
+			
+			//返回数据
+			$returnData = array(
+				"state" => "success",
+				"message" => ""				
+			);
+			
+			//根据ID删除表【craftsmanshiptree】的记录
+			$sql = "DELETE FROM `craftsmanshiptree` WHERE `id`='".$relateId."'";
+			if(!$conn->query($sql)){
+				$returnData["state"] = "fail";
+				$returnData["message"] .= "【craftsmanshiptree】删除失败;";
+			}
+			
+			$contactIdArr = array();//表【craftsmanshiptable】的id
+			$sql = "SELECT `id` FROM `craftsmanshiptable` WHERE `craftsmanshiptree_id`='".$relateId."'";
+			$result = $conn->query($sql);
+			if($result->num_rows > 0){
+				while($row = $result->fetch_assoc()){
+					$contactIdArr[] = $row["id"];
+				}
+			}
+			
+			foreach($contactIdArr as $index => $contactId){
+				//删除【craftsmanshiptable】的模板二的图，模板三的图
+				$sql = "SELECT `secondmodelimageone`,`secondmodelimagetwo`,`secondmodelimagethree`,`thirdmodelimage` FROM `craftsmanshiptable` WHERE `id`='".$contactId."'";
+				$result = $conn->query($sql);
+				if($result->num_rows > 0){
+					$savePathArr = array();
+					while($row = $result->fetch_assoc()){
+						$savePathArr[0] = $row["secondmodelimageone"];
+						$savePathArr[1] = $row["secondmodelimagetwo"];
+						$savePathArr[2] = $row["secondmodelimagethree"];
+						$savePathArr[3] = $row["thirdmodelimage"];
+					}				
+					foreach($savePathArr as $index => $savePath){
+						if(!empty($savePath)){
+							$realsavePath = "../".$savePath;
+							if(file_exists($realsavePath)){
+								@unlink($realsavePath);
+							}
+						}
+					}
+				}
+				//删除【craftsmanshiptable】表记录
+				$sql = "DELETE FROM `craftsmanshiptable` WHERE `id`='".$contactId."' ";
+				if(!$conn->query($sql)){
+					$returnData["state"] = "fail";
+					$returnData["message"] .= "表craftsmanshiptable记录删除失败";
+				}
+				//删除【craftsmanshiptableone】表记录
+				$sql = "DELETE FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$contactId."' ";
+				if(!$conn->query($sql)){
+					$returnData["state"] = "fail";
+					$returnData["message"] .= "表craftsmanshiptableone记录删除失败";
+				}
+				//删除【craftsmanshiptabletwo】表记录
+				$sql = "DELETE FROM `craftsmanshiptabletwo` WHERE `craftsmanship_id`='".$contactId."' ";
+				if(!$conn->query($sql)){
+					$returnData["state"] = "fail";
+					$returnData["message"] .= "表craftsmanshiptabletwo记录删除失败";
+				}
+			}
+			
+			$json = json_encode($returnData);
+			echo $json;
+			break;
 				
 		default :
 			echo '{"state":"failure","message":"没有对应的标志"}';
