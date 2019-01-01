@@ -22,38 +22,42 @@
     }
   }
   // 过滤重复作为下拉checkbox数据
-  $sql2 = "SELECT DISTINCT name from part";
+  $sql2 = "SELECT DISTINCT standard from part";
   $res2 = $conn -> query($sql2);
   if($res2->num_rows > 0) {
     $i = 0;
     while($row2 = $res2 -> fetch_assoc()) {
-      $arr2[$i]['f4'] = $row2['name'];
+      // 开料尺寸
+      $arr2[$i]['f6'] = $row2['standard'];
       $i++;
     }
   }
 
-  $sql3 = "SELECT DISTINCT figure_number from part";
+  $sql3 = "SELECT DISTINCT child_material from part";
   $res3 = $conn -> query($sql3);
   if($res3->num_rows > 0) {
     $i = 0;
     while($row3 = $res3 -> fetch_assoc()) {
-      $arr3[$i]['f3'] = $row3['figure_number'];
+      // 规格
+      $arr3[$i]['f5'] = $row3['child_material'];
       $i++;
     }
   }
 
   // 未排产
   $list_data = json_encode($arr);
-  $fName = json_encode($arr2);
-  $fFigure_number = json_encode($arr3);  
-  $json = '{"success":true,"rows":'.$list_data.',"fName":'.$fName.',"fFigure_number":'.$fFigure_number.'}';
+  $fStandard = json_encode($arr2);
+  $fChild_material = json_encode($arr3);  
+  $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.'}';
 
   // 已排产数据列表
-  $sql4 = "SELECT A.id,A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
+  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
   $res4 = $conn->query($sql4);
   if($res4->num_rows > 0 ){
     $i = 0;
     while($row4 = $res4->fetch_assoc()){
+      $arr4[$i]['partid'] = $row4['id'];
+      $arr4[$i]['fid'] = $row4['fid'];  
       $arr4[$i]['modid'] = $row4['modid']; 
       $arr4[$i]['figure_number'] = $row4['figure_number']; 
       $arr4[$i]['name'] = $row4['name'];
@@ -68,9 +72,34 @@
       $arr4[$i]['schedule_date'] = $row4['schedule_date'];
       $i++;
     }
+
+    // 规格下拉筛选数据
+    $sql5 = "SELECT DISTINCT child_material FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
+    $res5 = $conn->query($sql5);
+    if($res5->num_rows > 0) {
+      $i = 0;
+      while($row5 = $res5->fetch_assoc()) {
+        $arr5[$i]['F5'] = $row5['child_material'];
+        $i++;
+      }
+    }
+
+    // 开料尺寸下拉筛选数据
+    $sql6 = "SELECT DISTINCT standard FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
+    $res6 = $conn->query($sql6);
+    if($res6->num_rows > 0) {
+      $i = 0;
+      while($row6 = $res6->fetch_assoc()) {
+        $arr6[$i]['F6'] = $row6['standard'];
+        $i++;
+      }
+    }
+
     // 已排产
     $list_data2 = json_encode($arr4);
-    $json = '{"success":true,"rows":'.$list_data.',"fName":'.$fName.',"fFigure_number":'.$fFigure_number.',"rows2":'.$list_data2.'}';
+    $FChild_material = json_encode($arr5);
+    $FStandard = json_encode($arr6);
+    $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.',"rows2":'.$list_data2.',"FStandard":'.$FStandard.',"FChild_material":'.$FChild_material.'}';
   }
   
   echo $json;
