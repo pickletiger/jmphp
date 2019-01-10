@@ -17,6 +17,17 @@
 			}
 			$ret_data["success"] = 'success';
 		}
+	}else if($flag == "Test"){
+		$result = $_POST["result"];
+		$Number = $_POST["Number"];
+		$person = $_POST["person"];
+		$type   = $_POST["type"];
+		$sql = "UPDATE workshop_k SET isfinish='".$result."',uuser = '".$person."',test_type = '".$type."' WHERE isfinish = '1' and modid='".$Number."'";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			
+			}
+		$ret_data["success"] = 'success';
 	}else{
 		$state = $_POST["state"];
 		$sql = "select Wmodid,station,name,utime from test where isfinish = '".$state."'";
