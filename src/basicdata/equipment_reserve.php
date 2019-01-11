@@ -11,14 +11,16 @@
 	$tallyposition = isset($_POST["tallyposition"])?$_POST["tallyposition"] : '';
 	$tallycycle = isset($_POST["tallycycle"])?$_POST["tallycycle"] : '';
 	if(isset($_POST["id"])){
+		$time = time();
 		$id = $_POST["id"];
-		$sql ="UPDATE equipment SET number='$number',name='$name',state='$state',workcenter='$workcenter',checkrequest='$checkrequest',tallyposition='$tallyposition',tallycycle='$tallycycle',add_time=NOW() WHERE id='$id'";
+		$sql ="UPDATE equipment SET number='$number',name='$name',state='$state',workcenter='$workcenter',checkrequest='$checkrequest',tallyposition='$tallyposition',tallycycle='$tallycycle',utime=$time WHERE id='$id'";
 		$res = $conn->query($sql);
 	}else {
-		$sql = "INSERT INTO equipment (number,name,state,workcenter,checkrequest,tallyposition,tallycycle,add_time) VALUES ('$number','$name','$state','$workcenter','$checkrequest','$tallyposition','$tallycycle',NOW())";
+		$time = time();
+		$sql = "INSERT INTO equipment (number,name,state,workcenter,checkrequest,tallyposition,tallycycle,ctime) VALUES ('$number','$name','$state','$workcenter','$checkrequest','$tallyposition','$tallycycle',$time)";
 		$res = $conn->query($sql);
 	}
 	$conn->close();
 	$json=json_encode($ret_data);
-	echo $json
+	echo $json;
 ?>

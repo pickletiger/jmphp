@@ -4,23 +4,26 @@
   
   $pageSize = $_GET['pageSize']; // 每页条数
   $current = $_GET['current']; // 当前页
+  $searchValue = $_GET['searchValue']; // 搜索关键词
+  $searchCondition = $_GET['searchCondition']; // 搜索项
   $startPage = ($current-1)*$pageSize;
 
-  $sql = 'SELECT * FROM plan_table LIMIT '.$startPage.','.$pageSize;
-  $sql2 = 'SELECT COUNT(*) FROM plan_table';
-
+  if (!$searchCondition || !$searchValue) {
+    $sql = 'SELECT * FROM plan_table LIMIT '.$startPage.','.$pageSize;
+    $sql2 = 'SELECT COUNT(*) FROM plan_table';
+  } else {
+    $sql = 'SELECT * FROM plan_table WHERE '.$searchCondition.' LIKE "%'.$searchValue.'%" LIMIT '.$startPage.','.$pageSize;
+    $sql2 = 'SELECT COUNT(*) FROM plan_table WHERE '.$searchCondition.' LIKE "%'.$searchValue.'%"';
+  }
   $result = $conn->query($sql);
-  $result2 = $conn->query($sql2); 
-
+  $result2 = $conn->query($sql2);
   $data = '';
   $count = '';
 
   // 总条数
   if($result2->num_rows){ 
-
    $rs = $result2->fetch_assoc();
    $count = $rs['COUNT(*)'];
- 
   }else{ 
     $count = 0;
   }
