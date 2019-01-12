@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>jmmes</name>
+	<name>jmmesphp</name>
 	<comment>Create By HBuilder</comment>
 	<projects>
 	</projects>
@@ -10,13 +10,19 @@
 			<arguments>
 			</arguments>
 		</buildCommand>
+		<buildCommand>
+			<name>com.aptana.editor.php.aptanaPhpBuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
 	</buildSpec>
 	<natures>
 		<nature>com.aptana.projects.webnature</nature>
+		<nature>com.aptana.editor.php.phpNature</nature>
 	</natures>
 	<filteredResources>
 		<filter>
-			<id>1540521115417</id>
+			<id>1540825610387</id>
 			<name></name>
 			<type>10</type>
 			<matcher>
