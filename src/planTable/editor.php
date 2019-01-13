@@ -23,7 +23,7 @@
     }else if($count == $num) {
       $sql .= ' AND '.$key.'="'.$val.'"';
     }else {
-      $sql.=$key.'='.$val.',';
+      $sql.=$key.'="'.$val.'",';
     }
     $count++;
   }
