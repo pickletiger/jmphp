@@ -1,16 +1,12 @@
 <?php
 	require("../conn.php");
 	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
-	// header("charset:UTF-8");
 	$ret_data='';
 	$flag = isset($_POST["flag"])?$_POST["flag"]:'';
 	$id = isset($_POST["id"])?$_POST["id"]:'';
 	
-// 	$flag='qrcode';
-// 	$id = '546';
-	
 	if($flag == 'part') {
-		$sql = "SELECT figure_number,name,count,standard,modid,child_material,child_number,remark FROM part WHERE id = '$id'";
+		$sql = "SELECT figure_number,name,count,standard,modid,remark FROM part WHERE id = '$id'";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			while($row=$res->fetch_assoc()){
@@ -19,15 +15,13 @@
 				$ret_data["count"] = $row["count"];
 				$ret_data["standard"] = $row["standard"];
 				$ret_data["modid"] = $row["modid"];
-				$ret_data["child_material"] = $row["child_material"];
-				$ret_data["child_number"] = $row["child_number"];
 				$ret_data["remark"] = $row["remark"];
 				$ret_data["id"] = $id;
 				$modid = $row["modid"];
 			}
 			$ret_data["success"] = 'success';
 		}
-		$mysql = "SELECT id,route, isfinish FROM route WHERE pid <> '0' AND modid = '$modid' ORDER BY listid ASC";
+		$mysql = "SELECT id,route, isfinish FROM route WHERE pid <> '0' AND modid = '$modid' ORDER BY id ASC";
 		$myres = $conn->query($mysql);
 		if($myres->num_rows>0){
 			$x=0;
@@ -47,14 +41,9 @@
 					$y++;
 					break;
 					case 2:
-					$ret_data["build"][$z]["route"] = $myrow["route"];
-					$ret_data["build"][$z]["id"] = $myrow["id"];
+					$ret_data["bulid"][$z]["route"] = $myrow["route"];
+					$ret_data["bulid"][$z]["id"] = $myrow["id"];
 					$z++;
-					break;
-					case 3:
-					$ret_data["unfinished"][$x]["route"] = $myrow["route"];
-					$ret_data["unfinished"][$x]["id"] = $myrow["id"];
-					$x++;
 					break;
 				}
 			}
@@ -76,12 +65,11 @@
 		//判断belong_part字段是否是&拼接的,如不是则执行if
 		if($ares->num_rows>0){ 
 			$ret_data["success"]="success";
-			$ret_data["id"] = $id;
 			$i=0;
 			while($arow=$ares->fetch_assoc()){
 				$modid = $arow["modid"];
 				$ret_data["item"][$i]["id"]=$arow["id"];
-				$bsql="SELECT id,route,isfinish FROM route WHERE pid<>'0' AND modid = '$modid' ORDER BY listid ASC";
+				$bsql="SELECT id,route,isfinish FROM route WHERE pid<>'0' AND modid = '$modid' ORDER BY id ASC";
 				$bres=$conn->query($bsql);
 				if($bres->num_rows>0){
 					$x=0;
@@ -102,14 +90,9 @@
 							$y++;
 							break;
 							case 2:
-							$ret_data["item"][$i]["build"][$z]["route"] = $brow["route"];
-							$ret_data["item"][$i]["build"][$z]["id"] = $brow["id"];
+							$ret_data["item"][$i]["bulid"][$z]["route"] = $brow["route"];
+							$ret_data["item"][$i]["bulid"][$z]["id"] = $brow["id"];
 							$z++;
-							break;
-							case 3:
-							$ret_data["item"][$i]["unfinished"][$x]["route"] = $brow["route"];
-							$ret_data["item"][$i]["unfinished"][$x]["id"] = $brow["id"];
-							$x++;
 							break;
 						}
 					}
@@ -122,12 +105,11 @@
 			//判断belong_part字段是否是&拼接的,如不是则执行if
 			if($cres->num_rows>0){ 
 				$ret_data["success"]="success";
-				$ret_data["id"] = $id;
 				$i=0;
 				while($crow=$cres->fetch_assoc()){
 					$modid = $crow["modid"];
 					$ret_data["item"][$i]["id"]=$crow["id"];
-					$dsql="SELECT id,route,isfinish FROM route WHERE pid <>'0' AND modid = '$modid' ORDER BY listid ASC";
+					$dsql="SELECT id,route,isfinish FROM route WHERE pid <>'0' AND modid = '$modid' ORDER BY id ASC";
 					$dres=$conn->query($dsql);
 					if($dres->num_rows>0){
 						$x=0;
@@ -148,14 +130,9 @@
 								$y++;
 								break;
 								case 2:
-								$ret_data["item"][$i]["build"][$z]["route"] = $drow["route"];
-								$ret_data["item"][$i]["build"][$z]["id"] = $drow["id"];
+								$ret_data["item"][$i]["bulid"][$z]["route"] = $drow["route"];
+								$ret_data["item"][$i]["bulid"][$z]["id"] = $drow["id"];
 								$z++;
-								break;
-								case 3:
-								$ret_data["item"][$i]["unfinished"][$x]["route"] = $drow["route"];
-								$ret_data["item"][$i]["unfinished"][$x]["id"] = $drow["id"];
-								$x++;
 								break;
 							}
 						}
@@ -249,7 +226,8 @@
 		$standard = isset($_POST["standard"])?$_POST["standard"]:'';
 		$count = isset($_POST["count"])?$_POST["count"]:'';
 		$remark = isset($_POST["remark"])?$_POST["remark"]:'';
-		$sql = "UPDATE part SET name='$name',standard='$standard',count='$count',remark='$remark' WHERE id = '$id'";
+		$radio = isset($_POST["radio"])?$_POST["radio"]:'';
+		$sql = "UPDATE part SET name='$name',standard='$standard',count='$count',remark='$remark',radio ='$radio' WHERE id = '$id'";
 		$res=$conn->query($sql);
 		$ret_data["success"] = 'success';
 	}
@@ -308,14 +286,12 @@
 		$ret_data["success"] = "success";
 	}
 	else if($flag=='qrcode'){
-		
-		$sql = "SELECT fid,name,figure_number,fid,count,child_material,modid FROM part WHERE id='$id'";
+		$sql = "SELECT name,figure_number,fid,count,child_material,modid FROM part WHERE id='$id'";
 		$res = $conn->query($sql);
 		if($res->num_rows>0){
 			while($row=$res->fetch_assoc()){
 				$ret_data["name"] = $row["name"];
 				$ret_data["figure_number"] = $row["figure_number"];
-				$ret_data["pid"] = $row["fid"];
 				$fid = $row["fid"];
 				$ret_data["count"] = $row["count"];
 				$ret_data["child_material"]=$row["child_material"];
@@ -337,7 +313,6 @@
 				$ret_data["pro"] = $str[0].'#';
 			}
 		}
-		// print_r($ret_data);
 	}
 	$conn->close();
 	$json = json_encode($ret_data);

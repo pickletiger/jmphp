@@ -102,6 +102,58 @@
     $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.',"rows2":'.$list_data2.',"FStandard":'.$FStandard.',"FChild_material":'.$FChild_material.'}';
   }
   
+  
+  //生产中数据列表
+  $sql7 = "Select * from projectIng";
+  $res7 = $conn->query($sql7);
+  if($res7->num_rows > 0 ){
+    $i = 0;
+    while($row7 = $res7->fetch_assoc()){
+      $arr7[$i]['partid'] = $row7['id'];
+      $arr7[$i]['fid'] = $row7['fid'];  
+      $arr7[$i]['modid'] = $row7['modid']; 
+      $arr7[$i]['figure_number'] = $row7['figure_number']; 
+      $arr7[$i]['name'] = $row7['name'];
+      $arr7[$i]['standard'] = $row7['standard'];
+      $arr7[$i]['count'] = $row7['count'];
+      $arr7[$i]['child_material'] = $row7['child_material'];
+      $number7 = explode("#",$row7['number']);
+      $arr7[$i]['number'] = $number7[0] . "#";
+      $arr7[$i]['product_name'] = $number7[1] . $row7['product_name'];
+      $arr7[$i]['remark'] = $row7['remark'];
+      $arr7[$i]['station'] = $row7['station'];
+      $arr7[$i]['schedule_date'] = $row7['schedule_date'];
+      $i++;
+    }
+	   // 规格下拉筛选数据
+    $sql8 = "SELECT DISTINCT child_material FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
+    $res8 = $conn->query($sql8);
+    if($res8->num_rows > 0) {
+      $i = 0;
+      while($row8 = $res8->fetch_assoc()) {
+        $arr8[$i]['F5'] = $row8['child_material'];
+        $i++;
+      }
+    }
+
+    // 开料尺寸下拉筛选数据
+    $sql9 = "SELECT DISTINCT standard FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid";
+    $res9 = $conn->query($sql9);
+    if($res9->num_rows > 0) {
+      $i = 0;
+      while($row9 = $res9->fetch_assoc()) {
+        $arr9[$i]['F6'] = $row9['standard'];
+        $i++;
+      }
+    }
+
+    // 已排产
+    $list_data3 = json_encode($arr7);
+    $FChild_material3 = json_encode($arr8);
+    $FStandard3 = json_encode($arr9);
+    $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.',"rows2":'.$list_data2.',"FStandard":'.$FStandard.',"FChild_material":'.$FChild_material.',"rows3":'.$list_data3.'}';
+  }
+  
   echo $json;
   $conn->close();
 ?>
