@@ -43,14 +43,11 @@
 			$routeid = $_POST["routeid"];
 			$isfinish = $_POST["isfinish"];
 			if($isfinish == "4"){
-				$sql3 = "UPDATE workshop_k SET isfinish='1' WHERE modid='".$modid."' and routeid='".$routeid."' and isfinish='4' ";
+				$sql3 = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' and isfinish='4' ORDER by id LIMIT 1";
 				$conn->query($sql3);
-				
-//				$sql5 = "UPDATE workshop_k SET isfinish='2' where modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1 ";
-//				$conn->query($sql5);
 				die();
 			}
-			$sql = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
+			$sql = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
 			$conn->query($sql);
 			// 更新route路线中（在建）
 			$sql2 = "UPDATE route SET isfinish='2' where modid='".$modid."' and id='".$routeid."' ORDER by id LIMIT 1 ";
@@ -94,13 +91,13 @@
 			// 获取isfinish状态
 			$modid = $_POST["modid"];
 			$routeid = $_POST["routeid"];
-			$sql = "SELECT id,isfinish FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1";
+			$sql = "SELECT routeid,isfinish FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				$i = 0;
 				while($row = $res->fetch_assoc()) {
 					$arr[$i]['isfinish'] = $row['isfinish'];
-					$arr[$i]['routeid'] = $row['id'];
+					$arr[$i]['routeid'] = $row['routeid'];
 					$i++;
 				}
 			} else {
@@ -128,14 +125,14 @@
 			$inspect = $_POST["inspect"];
 			$sql = "UPDATE workshop_k SET isfinish='".$inspect."' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='1' ORDER by id LIMIT 1";
 			$conn->query($sql);
-			if($inspect == "3"){
-				$sql2 = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
+			if($inspect === "4"){
+				$sql2 = "UPDATE workshop_k SET notNum=notNum+1 WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='4' ORDER by id LIMIT 1";
 				$conn->query($sql2);
-			}
+			} 
 			
 			// 循环检测是否所有工序完成
-			$sql3 = "SELECT isfinish from workshop_k where modid='".$modid."' and routeid='".$routeid."' ";
-			$res = $conn->query($sql3);
+			$sql4 = "SELECT isfinish from workshop_k where modid='".$modid."' and routeid='".$routeid."' ";
+			$res = $conn->query($sql4);
 			if ($res->num_rows > 0) {
 				while ($row = $res->fetch_assoc()) {
 					if($row['isfinish'] != '3') {
@@ -145,12 +142,12 @@
 				}
 				
 //				// 更新route进度为完成状态
-				$sql4 = "UPDATE route SET isfinish='1' where modid='".$modid."' and id='".$routeid."' ORDER by id LIMIT 1 ";
-				$conn->query($sql4);
+				$sql5 = "UPDATE route SET isfinish='1' where modid='".$modid."' and id='".$routeid."' ORDER by id LIMIT 1 ";
+				$conn->query($sql5);
 				
 				// 循环检测是否所有车间完成
-				$sql5 = "SELECT isfinish from route where modid='".$modid."' and pid='".$pid."' ";
-				$res2 = $conn->query($sql5);
+				$sql6 = "SELECT isfinish from route where modid='".$modid."' and pid='".$pid."' ";
+				$res2 = $conn->query($sql6);
 				if ($res2->num_rows > 0) {
 					while ($row1 = $res2->fetch_assoc()) {
 						if($row1['isfinish'] != '1') {
@@ -159,8 +156,8 @@
 						}
 					}
 					// 更新part进度为完成状态
-					$sql3 = "UPDATE part SET isfinish='1' where modid='".$modid."' and fid='".$pid."' ORDER by id LIMIT 1 ";
-					$res2 = $conn->query($sql3);
+					$sql7 = "UPDATE part SET isfinish='1' where modid='".$modid."' and fid='".$pid."' ORDER by id LIMIT 1 ";
+					$res2 = $conn->query($sql7);
 				}
 			}
 			break;
