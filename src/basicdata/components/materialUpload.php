@@ -18,22 +18,20 @@
   $time = time();
   for($j=2;$j<=$highestRow;$j++)
   {
-      $a = $objPHPExcel->getActiveSheet()->getCell("A".$j)->getValue();//获取A列的值,名字name
-      $b = $objPHPExcel->getActiveSheet()->getCell("B".$j)->getValue();//获取B列的值,职位job
-      $c = $objPHPExcel->getActiveSheet()->getCell("C".$j)->getValue();//获取C列的值,工号gNum
-      $d = $objPHPExcel->getActiveSheet()->getCell("D".$j)->getValue();//获取D列的值,部门department
-      $e = $objPHPExcel->getActiveSheet()->getCell("E".$j)->getValue();//获取E列的值,手机phone
-      $f = $objPHPExcel->getActiveSheet()->getCell("F".$j)->getValue();//获取F列的值,终端terminal
+      $a = $objPHPExcel->getActiveSheet()->getCell("A".$j)->getValue();//获取A列的值,物料编码material_num
+      $b = $objPHPExcel->getActiveSheet()->getCell("B".$j)->getValue();//获取B列的值,物料名称material_name
+      $c = $objPHPExcel->getActiveSheet()->getCell("C".$j)->getValue();//获取C列的值,规格specifications
+      $d = $objPHPExcel->getActiveSheet()->getCell("D".$j)->getValue();//获取D列的值,数量amount
       //搜索工号相同的数据
-      $sqlNum = "SELECT * from user where gNum='$c'";
+      $sqlNum = "SELECT * from material where material_num='$a'";
       $result = $conn->query($sqlNum);
       if ($result->num_rows > 0) {
-        $ret_data["error"]=$c;
+        $ret_data["error"]=$a;
         $json=json_encode($ret_data);
         echo $json;
       }else{
         //插入数据
-        $sql = "INSERT INTO user (gNum,name,phone_number,job,department,terminal,ctime) VALUES ('$c','$a','$e','$b','$d','$f',$time)";
+        $sql = "INSERT INTO material(material_num,material_name,specifications,amount,ctime) VALUES ('$a','$b','$c','$d',$time)";
         $res = $conn->query($sql);
       }
       

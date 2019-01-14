@@ -226,7 +226,8 @@
 		$standard = isset($_POST["standard"])?$_POST["standard"]:'';
 		$count = isset($_POST["count"])?$_POST["count"]:'';
 		$remark = isset($_POST["remark"])?$_POST["remark"]:'';
-		$sql = "UPDATE part SET name='$name',standard='$standard',count='$count',remark='$remark' WHERE id = '$id'";
+		$radio = isset($_POST["radio"])?$_POST["radio"]:'';
+		$sql = "UPDATE part SET name='$name',standard='$standard',count='$count',remark='$remark',radio ='$radio' WHERE id = '$id'";
 		$res=$conn->query($sql);
 		$ret_data["success"] = 'success';
 	}

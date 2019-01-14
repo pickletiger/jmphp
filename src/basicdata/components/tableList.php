@@ -14,6 +14,7 @@
             $ret_data["data"][$i]["phone"] = $row["phone_number"];
             $ret_data["data"][$i]["position"] = $row["job"];
             $ret_data["data"][$i]["department"] = $row["department"];
+            $ret_data["data"][$i]["terminal"] = $row["terminal"];
             $i++;
         }
     }

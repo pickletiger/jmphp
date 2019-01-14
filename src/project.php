@@ -24,7 +24,7 @@
 			}
 			$ret_data["success"] = 'success';
 		}
-		$mysql = "SELECT id,route, isfinish FROM route WHERE pid <> '0'	AND  modid = '$modid' ORDER BY id ASC";
+		$mysql = "SELECT id,route, isfinish FROM route WHERE pid <> '0'	AND  modid = '$modid' ORDER BY listid ASC";
 		$myres = $conn->query($mysql);
 		if($myres->num_rows>0){
 			$x=0;
@@ -44,9 +44,14 @@
 					$y++;
 					break;
 					case 2:
-					$ret_data["bulid"][$z]["route"] = $myrow["route"];
-					$ret_data["bulid"][$z]["id"] = $myrow["id"];
+					$ret_data["build"][$z]["route"] = $myrow["route"];
+					$ret_data["build"][$z]["id"] = $myrow["id"];
 					$z++;
+					break;
+					case 3:
+					$ret_data["unfinished"][$x]["route"] = $myrow["route"];
+					$ret_data["unfinished"][$x]["id"] = $myrow["id"];
+					$x++;
 					break;
 				}
 			}
@@ -69,10 +74,11 @@
 		$ares=$conn->query($asql);
 		if($ares->num_rows>0){
 			$ret_data["success"]="success";
+			$ret_data["id"]=$id;
 			$i=0;
 			while($arow=$ares->fetch_assoc()){
 				$modid = $arow["modid"];
-				$bsql="SELECT id,route,isfinish FROM route WHERE pid <> '0' AND modid = '$modid' ORDER BY id ASC";
+				$bsql="SELECT id,route,isfinish FROM route WHERE pid <> '0' AND modid = '$modid' ORDER BY listid ASC";
 				$bres=$conn->query($bsql);
 				if($bres->num_rows>0){
 					$x=0;
@@ -93,9 +99,14 @@
 							$y++;
 							break;
 							case 2:
-							$ret_data["item"][$i]["bulid"][$z]["route"] = $brow["route"];
-							$ret_data["item"][$i]["bulid"][$z]["id"] = $brow["id"];
+							$ret_data["item"][$i]["build"][$z]["route"] = $brow["route"];
+							$ret_data["item"][$i]["build"][$z]["id"] = $brow["id"];
 							$z++;
+							break;
+							case 3:
+							$ret_data["item"][$i]["unfinished"][$x]["route"] = $brow["route"];
+							$ret_data["item"][$i]["unfinished"][$x]["id"] = $brow["id"];
+							$x++;
 							break;
 						}
 					}
