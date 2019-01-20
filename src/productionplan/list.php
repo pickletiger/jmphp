@@ -5,7 +5,7 @@
   $flag = isset($_POST["flag"])?$_POST["flag"]:'';
   if($flag == ''){
 	  // 获取列表数据
-	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,C.name as product_name,C.number,B.route FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id";
+	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,C.name as product_name,C.number,B.route_line FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id";
 	  $res = $conn->query($sql);
 	  if($res->num_rows > 0 ){
 	    $i = 0;
@@ -14,7 +14,7 @@
 	      $arr[$i]['figure_number'] = $row['figure_number']; 
 	      $arr[$i]['name'] = $row['name'];
 	      $arr[$i]['standard'] = $row['standard'];
-		  	$arr[$i]['route'] = $row['route'];
+		  	$arr[$i]['route'] = $row['route_line'];
 	      $arr[$i]['count'] = $row['count'];
 	      $arr[$i]['child_material'] = $row['child_material'];
 	      $number = explode("#",$row['number']);
@@ -161,7 +161,7 @@
   }else{ //分车间显示
   	
 	  // 获取列表数据
-	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,C.name as product_name,C.number,B.route FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id and B.route like '%$flag%'";
+	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,C.name as product_name,C.number,B.route_line FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id and B.route like '%$flag%'";
 	  $res = $conn->query($sql);
 	  if($res->num_rows > 0 ){
 	    $i = 0;
@@ -170,7 +170,7 @@
 	      $arr[$i]['figure_number'] = $row['figure_number']; 
 	      $arr[$i]['name'] = $row['name'];
 	      $arr[$i]['standard'] = $row['standard'];
-		  	$arr[$i]['route'] = $row['route'];
+		  	$arr[$i]['route'] = $row['route_line'];
 	      $arr[$i]['count'] = $row['count'];
 	      $arr[$i]['child_material'] = $row['child_material'];
 	      $number = explode("#",$row['number']);
