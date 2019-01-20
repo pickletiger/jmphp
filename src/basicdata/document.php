@@ -1146,7 +1146,7 @@
 				$ret_data["data"]["detailList"][$i]["serial"] = $i+1;//序号				
 			}			
 			//装载明细表数据
-			$sql = "SELECT `id`,`processnumber`,`producname`,`productcode` FROM weldingtable WHERE `weldingtree_id`='".$relateId."'";
+			$sql = "SELECT `id`,`processnumber`,`partname`,`partdrawingnumber` FROM weldingtable WHERE `weldingtree_id`='".$relateId."'";
 			$result = $conn->query($sql);
 			if($result->num_rows > 0){
 				$i = 0;
@@ -1154,8 +1154,8 @@
 					$weldingtableIdArr[] = $row["id"];
 					
 					$ret_data["data"]["detailList"][$i]["processnumber"] = $row["processnumber"];
-					$ret_data["data"]["detailList"][$i]["producname"] = $row["producname"];
-					$ret_data["data"]["detailList"][$i]["productcode"] = $row["productcode"];
+					$ret_data["data"]["detailList"][$i]["partname"] = $row["partname"];
+					$ret_data["data"]["detailList"][$i]["partdrawingnumber"] = $row["partdrawingnumber"];
 					$ret_data["data"]["detailList"][$i]["pageNum"] = 3;
 					$ret_data["data"]["detailList"][$i]["level"] = "A";
 					$i++;
