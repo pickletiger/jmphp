@@ -1,7 +1,7 @@
 <?php	
     header("Access-Control-Allow-Origin:*");
 //连接数据库
-	$servername = "192.168.0.136:3306";
+	$servername = "192.168.0.136";
 	$username = "admin";
 	$password = "root";
 	$dbname = "jmmes";	

@@ -5,7 +5,8 @@
 	$flag = isset($_POST["flag"])?$_POST["flag"]:'';
 
 	if($flag == "Unread"){
-		$sql = "SELECT content,time,id FROM message WHERE state='0' ";
+		$department = $_POST["department"]; 
+		$sql = "SELECT content,time,id FROM message WHERE state='0' AND department='".$department."' ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
