@@ -55,7 +55,7 @@
 	  $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.'}';
 	
 	  // 已排产数据列表
-	  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid AND D.isfinish = 0";
+	  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date,B.route_line FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid AND D.isfinish = 0";
 	  $res4 = $conn->query($sql4);
 	  if($res4->num_rows > 0 ){
 	    $i = 0;
@@ -67,6 +67,7 @@
 	      $arr4[$i]['name'] = $row4['name'];
 	      $arr4[$i]['standard'] = $row4['standard'];
 	      $arr4[$i]['count'] = $row4['count'];
+		  	$arr4[$i]['route_line'] = $row4['route_line'];
 	      $arr4[$i]['child_material'] = $row4['child_material'];
 	      $number4 = explode("#",$row4['number']);
 	      $arr4[$i]['number'] = $number4[0] . "#";
@@ -210,7 +211,7 @@
 	  $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.'}';
 	
 	  // 已排产数据列表
-	  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid AND D.isfinish = '0'";
+	  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date,B.route_line FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid AND D.isfinish = '0'";
 	  $res4 = $conn->query($sql4);
 	  if($res4->num_rows > 0 ){
 	    $i = 0;
@@ -222,6 +223,7 @@
 	      $arr4[$i]['name'] = $row4['name'];
 	      $arr4[$i]['standard'] = $row4['standard'];
 	      $arr4[$i]['count'] = $row4['count'];
+		  	$arr4[$i]['route_line'] = $row4['route_line'];
 	      $arr4[$i]['child_material'] = $row4['child_material'];
 	      $number4 = explode("#",$row4['number']);
 	      $arr4[$i]['number'] = $number4[0] . "#";

@@ -10,14 +10,15 @@
 	$checkrequest = isset($_POST["checkrequest"])?$_POST["checkrequest"] : '';
 	$tallyposition = isset($_POST["tallyposition"])?$_POST["tallyposition"] : '';
 	$tallycycle = isset($_POST["tallycycle"])?$_POST["tallycycle"] : '';
+	$terminal = isset($_POST["terminal"])?$_POST["terminal"] : '';
 	if(isset($_POST["id"])){
 		$time = time();
 		$id = $_POST["id"];
-		$sql ="UPDATE equipment SET number='$number',name='$name',state='$state',workcenter='$workcenter',checkrequest='$checkrequest',tallyposition='$tallyposition',tallycycle='$tallycycle',utime=$time WHERE id='$id'";
+		$sql ="UPDATE equipment SET number='$number',name='$name',state='$state',workcenter='$workcenter',checkrequest='$checkrequest',tallyposition='$tallyposition',tallycycle='$tallycycle',terminal='$terminal',utime=$time WHERE id='$id'";
 		$res = $conn->query($sql);
 	}else {
 		$time = time();
-		$sql = "INSERT INTO equipment (number,name,state,workcenter,checkrequest,tallyposition,tallycycle,ctime) VALUES ('$number','$name','$state','$workcenter','$checkrequest','$tallyposition','$tallycycle',$time)";
+		$sql = "INSERT INTO equipment (number,name,state,workcenter,checkrequest,tallyposition,tallycycle,terminal,ctime) VALUES ('$number','$name','$state','$workcenter','$checkrequest','$tallyposition','$tallycycle','$terminal',$time)";
 		$res = $conn->query($sql);
 	}
 	$conn->close();
