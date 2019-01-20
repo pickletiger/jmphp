@@ -24,6 +24,7 @@
       $d = $objPHPExcel->getActiveSheet()->getCell("D".$j)->getValue();//获取D列的值,部门department
       $e = $objPHPExcel->getActiveSheet()->getCell("E".$j)->getValue();//获取E列的值,手机phone
       $f = $objPHPExcel->getActiveSheet()->getCell("F".$j)->getValue();//获取F列的值,终端terminal
+      $g = $objPHPExcel->getActiveSheet()->getCell("G".$j)->getValue();//获取G列的值,车间workShop
       //搜索工号相同的数据
       $sqlNum = "SELECT * from user where gNum='$c'";
       $result = $conn->query($sqlNum);
@@ -33,7 +34,7 @@
         echo $json;
       }else{
         //插入数据
-        $sql = "INSERT INTO user (gNum,name,phone_number,job,department,terminal,ctime) VALUES ('$c','$a','$e','$b','$d','$f',$time)";
+        $sql = "INSERT INTO user (gNum,name,phone_number,job,department,terminal,workShop,ctime) VALUES ('$c','$a','$e','$b','$d','$f','$g',$time)";
         $res = $conn->query($sql);
       }
       

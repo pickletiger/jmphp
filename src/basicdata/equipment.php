@@ -38,6 +38,7 @@
 				$ret_data["data"][$i]["checkrequest"] = $row["checkrequest"];
 				$ret_data["data"][$i]["tallyposition"] = $row["tallyposition"];
 				$ret_data["data"][$i]["tallycycle"] = $row["tallycycle"];
+				$ret_data["data"][$i]["terminal"] = $row["terminal"];
 				$i++;
 			}
 		}
