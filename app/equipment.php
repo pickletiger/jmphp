@@ -6,10 +6,10 @@
 	switch ($flag) {
 		case '0' : 
 			$id = $_POST["id"];
-			$equnumber = $_POST["equnumber"];
-//			$id = '25';
-//			$equnumber = '1';
-			$sql = "SELECT name FROM equipment WHERE id='".$id."' AND number='".$equnumber."' ";
+			$equNum = $_POST["equNum"];
+//			$id = '31';
+//			$equNum = '1';
+			$sql = "SELECT name FROM equipment WHERE id='".$id."' AND number='".$equNum."' ";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				$i = 0;
