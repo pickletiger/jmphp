@@ -22,7 +22,9 @@
 		  // 插入排产数据
 		  for($i = 0; $i < $mod_length; $i++) {
 		    for($j = 0; $j < $station_length; $j++) {
-		      $sql = "INSERT INTO workshop_k (modid, routeid, station, schedule_date, isfinish) VALUES ('$modidArr[$i]', '$routeidArr[$i]', '$stationArr[$j]', '$schedule', '0')";
+	    		date_default_timezone_set("Asia/Shanghai");  //获取当前时间为上海时间
+					$time = date("Y-m-d h:i");//获取当前时间
+		      $sql = "INSERT INTO workshop_k (modid, routeid, station, schedule_date, isfinish,ctime) VALUES ('$modidArr[$i]', '$routeidArr[$i]', '$stationArr[$j]', '$schedule', '0','$time')";
 		      $conn->query($sql);   
 			  	// 更新路线route状态
 				  $sql2 = "UPDATE route SET isfinish='0' where modid='$modidArr[$i]' ";

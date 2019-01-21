@@ -2,18 +2,16 @@
  	require("../../conn.php");
 	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
  	$sqldata='';
- 	$sql="SELECT * from `workshop_task`";
+ 	$sql="SELECT * from `test` where isfinish = '0'";
  	$result = $conn->query($sql);
  	while ($row = $result->fetch_assoc()) {
 		$sqldata=$sqldata.'{
-			"id":"'.$row["id"].'",
-			"Serial":"'.$row["shopnumber"].'",
-			"name":"'.$row["workname"].'",
-			"Group":"'.$row["classnumber"].'",
-			"bzzname":"'.$row["monitorname"].'",
-			"time":"'.$row["plantime"].'",
-			"finished":"'.$row["finally"].'",
-			"Remarks":"'.$row["remarks"].'"
+			"Serial":"'.$row["route"].'",
+			"name":"'.$row["name"].'",
+			"Group":"'.$row["station"].'",
+			"time":"'.$row["ctime"].'",
+			"finished":"'.$row["otime"].'",
+			"Remarks":"'.$row["remark"].'"
 		},';
 	}
  	$jsonresult = 'true';
