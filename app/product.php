@@ -28,7 +28,7 @@
 				}
 			}
 			
-			$sql1 = "SELECT route FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish='0' ORDER by id LIMIT 1 ";
+			$sql1 = "SELECT route FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
 			$res1 = $conn->query($sql1);
 			if($res1 -> num_rows > 0) {
 				
@@ -39,7 +39,7 @@
 				}
 			}
 			
-			$sql2 = "SELECT station FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1 ";
+			$sql2 = "SELECT station FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
 			$res2 = $conn->query($sql2);
 			if($res2 -> num_rows > 0) {
 				
@@ -86,13 +86,14 @@
 			if($isfinish == "4"){
 				$sql3 = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' and isfinish='4' ORDER by id LIMIT 1";
 				$conn->query($sql3);
-				die();
-			}
-			$sql = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
+//				die();
+			} else{
+				$sql = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
 			$conn->query($sql);
 			// 更新route路线中（在建）
 			$sql2 = "UPDATE route SET isfinish='2' where modid='".$modid."' and id='".$routeid."' ORDER by id LIMIT 1 ";
 			$conn->query($sql2);
+			}
 			// 更新message
 			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','work','0')";
 			$res = $conn->query($sql4);
