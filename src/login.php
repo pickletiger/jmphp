@@ -5,7 +5,7 @@
 	if($flag == "Login"){
 		$username = $_POST["username"];
 		$password = $_POST["password"];
-		$sql = "SELECT * FROM user WHERE account = '$username'";
+		$sql = "SELECT * FROM user WHERE account = '$username' and terminal = '0' ";
 		$result = $conn->query($sql);
 		$row = $result->fetch_assoc();
 		if($password==$row["password"])	{
