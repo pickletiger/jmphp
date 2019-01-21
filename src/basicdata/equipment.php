@@ -7,7 +7,7 @@
 //	$ret_data["id"] = $send_json;
 	if(isset($_POST["id"])) {
 		$id = $_POST["id"];
-		$sql = "select a.number,a.name,b.add_time,b.checkperson,b.checkresult from equipment a,equipmentcheck b where b.fid=a.id and a.id='$id'";
+		$sql = "select a.number,a.name,b.ctime,b.checkperson,b.checkresult from equipment a,equipmentcheck b where b.fid=a.id and a.id='$id'";
 		$res = $conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -16,7 +16,7 @@
 				$ret_data["data"][$i]["name"] = $row["name"];
 				$ret_data["data"][$i]["number"] = $row["number"];
 				$ret_data["data"][$i]["checkresult"] = $row["checkresult"];
-				$ret_data["data"][$i]["checkdate"] = $row["add_time"];
+				$ret_data["data"][$i]["checkdate"] = date("Y-m-d H:i:s",$row["ctime"]);
 				$ret_data["data"][$i]["checkperson"] = $row["checkperson"];
 				$i++;
 			}
