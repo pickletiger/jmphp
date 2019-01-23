@@ -95,7 +95,7 @@
 			$conn->query($sql2);
 			}
 			// 更新message
-			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','work','0')";
+			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','销售部','0')";
 			$res = $conn->query($sql4);
 			$messageid = $conn->insert_id;
 				$data['messageid'] = $messageid;
@@ -170,7 +170,7 @@
 			$sql = "UPDATE workshop_k SET isfinish='1' where modid='".$modid."' and routeid='".$routeid."' and isfinish='2' ORDER by id LIMIT 1 ";
 			$conn->query($sql);
 			//更新message
-			$sql1 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".date("Y-m-d H:i:s")."','test','0')";
+			$sql1 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".date("Y-m-d H:i:s")."','计划部','0')";
 			$conn->query($sql1);
 			$sql2 = "UPDATE message SET state='1' where id='".$messageid."' ";
 			$conn->query($sql2);
@@ -193,7 +193,7 @@
 			$sql5 = "UPDATE message SET state='1' where id='".$messageid."' ORDER by id LIMIT 1 ";
 			$conn->query($sql5);
 			
-			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','test','0')";
+			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','计划部','0')";
 			$conn->query($sql4);
 			
 			if($inspect === "4"){

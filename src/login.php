@@ -5,17 +5,18 @@
 	if($flag == "Login"){
 		$username = $_POST["username"];
 		$password = $_POST["password"];
-		$sql = "SELECT * FROM user WHERE account = '$username' and terminal = '0' ";
+		$sql = "SELECT password,department FROM user WHERE account = '$username' and terminal = '0' ";
 		$result = $conn->query($sql);
 		$row = $result->fetch_assoc();
 		if($password==$row["password"])	{
-			$jsonresult='success';
+			$data['status']='success';
+			$data['department'] = $row['department'];
 		}else{
-			$jsonresult='error';
+			$data='error';
 		}
 		
 	}
-	$json = json_encode($jsonresult);
+	$json = json_encode($data);
 	echo $json;
 	$conn->close();	
 ?>
