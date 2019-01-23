@@ -10,6 +10,7 @@
 		  $routeid = $_POST["routeid"];
 		  $station = $_POST["checkList"];
 		  $schedule = $_POST["schedule"];
+		  $overdata = $_POST["overdata"];
 		
 		
 		  $modidArr = explode(",",$modid);
@@ -22,16 +23,15 @@
 		  // 插入排产数据
 		  for($i = 0; $i < $mod_length; $i++) {
 		    for($j = 0; $j < $station_length; $j++) {
-		      echo $stationArr[$j] . "||";
-		      echo $schedule . "||";
-		      $sql = "INSERT INTO workshop_k (modid, routeid, station, schedule_date, isfinish) VALUES ('$modidArr[$i]', '$routeidArr[$i]', '$stationArr[$j]', '$schedule', '0')";
-		      $conn->query($sql);    
+	    		date_default_timezone_set("Asia/Shanghai");  //获取当前时间为上海时间
+					$time = date("Y-m-d h:i");//获取当前时间
+		      $sql = "INSERT INTO workshop_k (modid, routeid, station, schedule_date, isfinish,ctime,otime) VALUES ('$modidArr[$i]', '$routeidArr[$i]', '$stationArr[$j]', '$schedule', '0','$time',$overdata)";
+		      $conn->query($sql);   
+			  	// 更新路线route状态
+				  $sql2 = "UPDATE route SET isfinish='0' where modid='$modidArr[$i]' ";
+				  $conn->query($sql2); 
 		    }
 		  } 
-		
-		  // 更新路线route状态
-		  $sql2 = "UPDATE route SET isfinish='3' where id='$routeid' ";
-		  $conn->query($sql2);
 	}else if($flag == "Back"){
 			
 		  $modid = $_POST["modid"];

@@ -34,7 +34,7 @@
 			$ret_data["success"] = 'success';
 		}
 	}else if($flag == "Recycle"){
-		$sql = "SELECT content,time,id FROM message WHERE state='2' ";
+		$sql = "SELECT content,time,id FROM message";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;

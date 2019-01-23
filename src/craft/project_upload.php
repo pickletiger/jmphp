@@ -113,7 +113,7 @@
 			
 	       
 	        if($partname!=$projectname){
-		    	$sql = "INSERT INTO part VALUES(null,'$id','$e','$i','$partname','$k','$l','$m','$n','$o','$p','$s','$t','$u','$y','$r','3',null,null,null,null)"; //null 为主键id，自增可用null表示自动添加
+		    	$sql = "INSERT INTO part VALUES(null,'$id','$e','$i','$partname','$k','$l','$m','2','$n','$o','$p','$s','$t','$u','$y','$r','3',null,null,null,null,null)"; //null 为主键id，自增可用null表示自动添加
 		    	$res= $conn->query($sql);
 	        }else {
 	        	$sql = "UPDATE project SET modid='$t' WHERE id = '$id'"; //为项目添加modid
