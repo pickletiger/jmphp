@@ -10,9 +10,10 @@
 	$department = isset($_POST["department"])?$_POST["department"] : '';
 	$terminal = isset($_POST["terminal"])?$_POST["terminal"] : '';
 	$workShop = isset($_POST["workShop"])?$_POST["workShop"] : '';
+	$uuser = isset($_POST["uusername"])?$_POST["uusername"] : '';
 	if(isset($_POST["id"])){
 		$id = $_POST["id"];
-		$sql ="UPDATE user SET gNum='$gNum', name='$name',phone_number='$phone',job='$position',department='$department',terminal='$terminal',workShop='$workShop',utime=NOW() where id='$id'";
+		$sql ="UPDATE user SET gNum='$gNum', name='$name',phone_number='$phone',job='$position',department='$department',terminal='$terminal',workShop='$workShop',utime=NOW(),uuser = '$uuser' where id='$id'";
 		$res = $conn->query($sql);
 	}else {
 		$sqlNum = "SELECT * from user where gNum='$gNum'";
@@ -32,7 +33,7 @@
 			exit;
 		}
         $time = time();
-		$sql = "INSERT INTO user (gNum,name,phone_number,job,department,terminal,workShop,ctime) VALUES ('$gNum','$name','$phone','$position','$department','$terminal',$workShop,$time)";
+		$sql = "INSERT INTO user (gNum,name,phone_number,job,department,terminal,workShop,ctime,uuser) VALUES ('$gNum','$name','$phone','$position','$department','$terminal','$workShop','$time','$uuser')";
 		$res = $conn->query($sql);
 	}
     $conn->close();
