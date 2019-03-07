@@ -15,13 +15,15 @@
 //			$modid = "1000479741";
 //			$routeid = "1397";
 			
-			$sql = "select name,child_material,quantity,modid from part where id='".$id."' ";
+			$sql = "select name,figure_number,count,child_material,quantity,modid from part where id='".$id."' ";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				
 				$i = 0;
 				while($row = $res->fetch_assoc()) {
 					$arr[$i]['name'] = $row['name'];
+					$arr[$i]['figure_number'] = $row['figure_number'];
+					$arr[$i]['count'] = $row['count'];
 					$arr[$i]['child_material'] = $row['child_material'];
 					$arr[$i]['quantity'] = $row['quantity'];
 					$i++;
@@ -83,12 +85,14 @@
 			$station = $_POST["station"];
 			$message = $route."的".$station."已开工！";
 			$write_date = $_POST["write_date"];
+			$name = $_POST["name"];
+			//不合格情况
 			if($isfinish == "4"){
 				$sql3 = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' and isfinish='4' ORDER by id LIMIT 1";
 				$conn->query($sql3);
 //				die();
 			} else{
-				$sql = "UPDATE workshop_k SET isfinish='2' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
+				$sql = "UPDATE workshop_k SET isfinish='2' ,route='$route' ,name='$name' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
 			$conn->query($sql);
 			// 更新route路线中（在建）
 			$sql2 = "UPDATE route SET isfinish='2' where modid='".$modid."' and id='".$routeid."' ORDER by id LIMIT 1 ";
