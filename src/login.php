@@ -8,7 +8,7 @@
 		$sql = "SELECT password,department FROM user WHERE account = '$username' and terminal = '0' ";
 		$result = $conn->query($sql);
 		$row = $result->fetch_assoc();
-		if($password==$row["password"])	{
+		if(sha1($password)==$row["password"])	{
 			$data['status']='success';
 			$data['department'] = $row['department'];
 		}else{

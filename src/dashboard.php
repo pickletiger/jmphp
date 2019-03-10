@@ -4,7 +4,7 @@
 	$name=$_POST["name"];
 	$utime = time();
 	$account=$_POST["account"];
-	$postword=$_POST["postword"];
+	$postword=sha1($_POST["postword"]);
 	$sql = "select account from user where account='$account'";
 	$res=$conn->query($sql);
 	if($res->num_rows>0){

@@ -106,8 +106,9 @@
 		$number = isset($_POST["number"])?$_POST["number"]:'';
 		$str = explode("#",$number);
 		$projectname = $name.$str[1];
+		$key = isset($_POST["key"])?$_POST["key"]:'';
 //		$ret_data["type"] = $type;
-		$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$id' AND (belong_part=''||belong_part='$projectname')";
+		$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$id' AND (belong_part=''||belong_part='$projectname') and radio = '$key'";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -129,9 +130,10 @@
 		$name = isset($_POST["name"])?$_POST["name"]:'';
 		$figure_number = isset($_POST["figure_number"])?$_POST["figure_number"]:'';
 		$level = isset($_POST["level"])?$_POST["level"]:'';
+		$key = isset($_POST["key"])?$_POST["key"]:'';
 		$ret_data["level"] = $figure_number.'&'.$name;
 		if($level == 5) {
-			$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$pid' AND belong_part='$name'";
+			$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$pid' AND belong_part='$name' and radio = '$key'";
 			$res=$conn->query($sql);
 			if($res->num_rows>0){
 				$i = 0;
@@ -148,7 +150,7 @@
 				$ret_data["success"] = 'success';
 			}else {
 				$bpart = $figure_number.'&'.$name;
-				$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$pid' AND belong_part='$bpart'";
+				$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$pid' AND belong_part='$bpart' and radio = '$key'";
 				$res=$conn->query($sql);
 				if($res->num_rows>0){
 					$i = 0;

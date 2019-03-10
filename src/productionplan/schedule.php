@@ -11,7 +11,7 @@
 		  $station = $_POST["checkList"];
 		  $schedule = $_POST["schedule"];
 		  $overdata = $_POST["overdata"];
-		
+			$cuser = $_POST["cuser"];
 		
 		  $modidArr = explode(",",$modid);
 		  $stationArr = explode(",",$station);
@@ -25,7 +25,7 @@
 		    for($j = 0; $j < $station_length; $j++) {
 	    		date_default_timezone_set("Asia/Shanghai");  //获取当前时间为上海时间
 					$time = date("Y-m-d h:i");//获取当前时间
-		      $sql = "INSERT INTO workshop_k (modid, routeid, station, schedule_date, isfinish,ctime,otime) VALUES ('$modidArr[$i]', '$routeidArr[$i]', '$stationArr[$j]', '$schedule', '0','$time',$overdata)";
+		      $sql = "INSERT INTO workshop_k (modid, routeid, station, schedule_date, isfinish,ctime,otime,cuser) VALUES ('$modidArr[$i]', '$routeidArr[$i]', '$stationArr[$j]', '$schedule', '0','$time','$overdata','$cuser')";
 		      $conn->query($sql);   
 			  	// 更新路线route状态
 				  $sql2 = "UPDATE route SET isfinish='0' where modid='$modidArr[$i]' ";

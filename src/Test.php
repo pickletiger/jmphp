@@ -1,5 +1,6 @@
 <?php
 	//测试云平台交互的JSON数据格式
+	header("Access-Control-Allow-Origin: *");
 	class Test{
 		public $conn;
 		public $projectData = array();
@@ -37,7 +38,15 @@
 			if($result->num_rows>0){
 				$i = 0;
 				while($row = $result->fetch_assoc()){
+					$arr = array();
+					$arr=explode(',',$row["part_url"]);
+					$base = "http://jmmes.oss-cn-shenzhen.aliyuncs.com/partUpload/";
+					foreach($arr as $key => $url){
+						$arr[$key] = $base .$url;
+					}		
+					
 					$mpartData[$i] = $row;
+					$mpartData[$i]["part_url"] = $arr;
 					
 					//3、根据二级树part的fid(=>fid) 与 [figure_number.'&'.name;](=>belong_part)
 					$belong_part_3_1 = $row["name"];
@@ -62,9 +71,16 @@
 			if($result->num_rows>0){
 //				echo $sql."<br /></hr/>";
 				$i = 0;
-				while($row = $result->fetch_assoc()){					
-					$partData_3[$i] = $row;
+				while($row = $result->fetch_assoc()){
+					$arr = array();
+					$arr=explode(',',$row["part_url"]);
+					$base = "http://jmmes.oss-cn-shenzhen.aliyuncs.com/partUpload/";
+					foreach($arr as $key => $url){
+						$arr[$key] = $base .$url;
+					}		
 					
+					$partData_3[$i] = $row;
+					$partData_3[$i]["part_url"] = $arr;
 //					4、根据三级树part的fid(=>fid) 与 [figure_number.'&'.name;](=>belong_part)
 					$belong_part_more_1 = $row["name"];
 					$belong_part_more_2 = $row["figure_number"]."&".$row["name"];
@@ -84,8 +100,15 @@
 //					echo $sql."<br /></hr/>";
 					$i = 0;
 					while($row = $result->fetch_assoc()){
+						$arr = array();
+						$arr=explode(',',$row["part_url"]);
+						$base = "http://jmmes.oss-cn-shenzhen.aliyuncs.com/partUpload/";
+						foreach($arr as $key => $url){
+							$arr[$key] = $base .$url;
+						}		
 						
 						$partData_3[$i] = $row;
+						$partData_3[$i]["part_url"] = $arr;
 						
 						//4、根据三级树part的fid(=>fid) 与 [figure_number.'&'.name;](=>belong_part)
 						$belong_part_more_1 = $row["name"];
@@ -111,9 +134,13 @@
 	set_time_limit(0);//设置脚本最大执行时间
 	ini_set('memory_limit','40960M');
 //	require("../conn.php");
-	$servername = "192.168.0.136:3306"; //将本地当做服务器，端口默认3306
-	$username = "admin";  //连接对象
-	$password = "root";  //连接密码
+//	$servername = "192.168.0.136:3306"; //将本地当做服务器，端口默认3306
+//	$username = "admin";  //连接对象
+//	$password = "root";  //连接密码
+	
+	$servername = "127.0.0.1:3306"; //将本地当做服务器，端口默认3306
+	$username = "root";  //连接对象
+	$password = "123456";  //连接密码
 	$dbname = "jmmes";	 //数据库名称
 	$conn = new mysqli($servername, $username, $password, $dbname);	
 	if ($conn->connect_error) {
@@ -129,7 +156,7 @@
 //	$testData = $test->getPart_3(2,"吊钩组件","FY-48B.05.01-00&吊钩组件");
 //	print_r($testData);
 
-	//生成json文件
+//	生成json文件
 	$myfile = fopen("newfile.json", "w") or die("Unable to open file!");
 	fwrite($myfile, $json);
 	fclose($myfile);
