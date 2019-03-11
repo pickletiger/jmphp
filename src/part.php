@@ -6,7 +6,7 @@
 	$id = isset($_POST["id"])?$_POST["id"]:'';
 	
 	if($flag == 'part') {
-		$sql = "SELECT figure_number,name,count,standard,modid,remark FROM part WHERE id = '$id'";
+		$sql = "SELECT figure_number,name,count,standard,modid,remark,radio FROM part WHERE id = '$id'";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			while($row=$res->fetch_assoc()){
@@ -17,6 +17,7 @@
 				$ret_data["modid"] = $row["modid"];
 				$ret_data["remark"] = $row["remark"];
 				$ret_data["id"] = $id;
+				$ret_data["radio"] = $row["radio"];
 				$modid = $row["modid"];
 			}
 			$ret_data["success"] = 'success';
