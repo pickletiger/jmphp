@@ -1,7 +1,7 @@
 <?php
 	require("../conn.php");
 	$flag = $_POST["flag"];
-//	$flag = "5";
+//	$flag = "1";
 	
 	switch ($flag) {
 		case '0' : 
@@ -10,21 +10,22 @@
 			$modid = $_POST["modid"];
 			$routeid = $_POST["routeid"];
 			
-//			$id = '548';
-//			$pid = "2";
-//			$modid = "1000479741";
-//			$routeid = "1397";
+//			$id = '2279';
+//			$pid = "8";
+//			$modid = "1000634982";
+//			$routeid = "7513";
 			
-			$sql = "SELECT A.modid,A.figure_number,A.name,A.count,A.child_material,A.remark,B.id AS routeid,C.route,C.id,C.notNum,C.station FROM part A,route B,workshop_k C WHERE C.isfinish = '0' AND A.modid = B.modid AND B.id = C.routeid AND B.modid = C.modid ORDER BY id LIMIT 1";
+//			$sql = "SELECT A.modid,A.figure_number,A.name,A.count,A.child_material,A.remark,B.id AS routeid,C.route,C.id,C.notNum,C.station FROM part A,route B,workshop_k C WHERE C.isfinish = '0' AND A.modid = B.modid AND B.id = C.routeid AND B.modid = C.modid ORDER BY id LIMIT 1";
+			$sql = "select name,figure_number,count,child_material,quantity,modid from part where id='".$id."' ";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				
 				$i = 0;
 				while($row = $res->fetch_assoc()) {
 					$arr[$i]['name'] = $row['name'];
-					$arr[$i]['route'] = $row['route'];
-					$arr[$i]['station'] = $row['station'];
-					$arr[$i]['notNum'] = $row['notNum'];
+//					$arr[$i]['route'] = $row['route'];
+//					$arr[$i]['station'] = $row['station'];
+//					$arr[$i]['notNum'] = $row['notNum'];
 					$arr[$i]['figure_number'] = $row['figure_number'];
 					$arr[$i]['count'] = $row['count'];
 					$arr[$i]['child_material'] = $row['child_material'];
@@ -53,6 +54,23 @@
 					$arr[$i]['station'] = $row2['station'];
 					$i++;
 				}
+			} else{
+				//若workshop_k无数据跳出循环
+				die();
+			}
+			
+			$sql3 = "SELECT notNum FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$res3 = $conn->query($sql3);
+			if($res3 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row3 = $res3->fetch_assoc()) {
+					$arr[$i]['notNum'] = $row3['notNum'];
+					$i++;
+				}
+			} else{
+				//若workshop_k无数据跳出循环
+				die();
 			}
 			
 			$json = json_encode($arr);
@@ -63,8 +81,8 @@
 			$modid = $_POST["modid"];
 			$pid = $_POST["pid"];
 			
-//			$modid = '1000479741';
-//			$pid = '2';
+//			$modid = '1000629924';
+//			$pid = '8';
 			$sql = "SELECT isfinish,id FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish!='1' ORDER by id LIMIT 1";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
@@ -76,6 +94,7 @@
 				}
 			}
 			$json = json_encode($arr);
+//			echo gettype($json);
 			echo $json;
 			break;
 		case '2' :
@@ -86,7 +105,8 @@
 			$isfinish = $_POST["isfinish"];
 			$route = $_POST["route"];
 			$station = $_POST["station"];
-			$message = $route."的".$station."已开工！";
+			$name = $_POST["name"];
+			$message = $name."的".$route."的".$station."已开工！";
 			$write_date = $_POST["write_date"];
 			$name = $_POST["name"];
 			//不合格情况
