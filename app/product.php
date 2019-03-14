@@ -193,7 +193,7 @@
 			$route = $_POST["route"];
 			$messageid = $_POST["messageid"];
 			$station = $_POST["station"];
-			$message = $route."的".$station."已完工！";
+			$message = $name."的".$route."的".$station."已完工！";
 			$sql = "UPDATE workshop_k SET isfinish='1' where modid='".$modid."' and routeid='".$routeid."' and isfinish='2' ORDER by id LIMIT 1 ";
 			$conn->query($sql);
 			//更新message

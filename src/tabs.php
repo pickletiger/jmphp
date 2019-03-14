@@ -20,7 +20,8 @@
 			$ret_data["success"] = 'success';
 		}
 	}else if($flag == "Read"){
-		$sql = "SELECT content,time,id FROM message WHERE state='1' ";
+		$department = $_POST["department"]; 
+		$sql = "SELECT content,time,id FROM message WHERE state='1' AND department='".$department."' ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -34,7 +35,7 @@
 			$ret_data["success"] = 'success';
 		}
 	}else if($flag == "Recycle"){
-		$sql = "SELECT content,time,id FROM message";
+		$sql = "SELECT content,time,id FROM message where state='1' or state='0' ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -52,7 +53,18 @@
 		$sql = "UPDATE message SET state='1' WHERE id='".$id."' ";
 		$res=$conn->query($sql);
 		
+	}else if($flag == "allRead"){
+		$id = $_POST["id"]; 
+		$sql = "UPDATE message SET state='1' WHERE id='".$id."' ";
+		$res=$conn->query($sql);
+		
 	}else if($flag == "RecycleIn"){
+		$id = $_POST["id"]; 
+		$sql = "UPDATE message SET state='2' WHERE id='".$id."' ";
+		$res=$conn->query($sql);
+		
+	
+	}else if($flag == "allDel"){
 		$id = $_POST["id"]; 
 		$sql = "UPDATE message SET state='2' WHERE id='".$id."' ";
 		$res=$conn->query($sql);
