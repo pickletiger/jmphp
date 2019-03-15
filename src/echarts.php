@@ -6,7 +6,7 @@
 	    public $value;  
 	}  
 	$data = array();
-	$sql = "select notNum,count(name) as count from workshop_k where notNum != '0' group by notNum ";
+	$sql = "select notNum,count(name) as count from workshop_k where notNum != '0' group by isfinish ";
 	$res=$conn->query($sql);
 	if($res->num_rows>0){
 		$i=0;

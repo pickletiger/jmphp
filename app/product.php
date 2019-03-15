@@ -106,8 +106,7 @@
 			$route = $_POST["route"];
 			$station = $_POST["station"];
 			$name = $_POST["name"];
-			$workstate = '开工';
-			$message = $name."的".$route."的".$station."已就工！;
+			$message = $name."的".$route."的".$station."已开工！";
 			$write_date = $_POST["write_date"];
 			$name = $_POST["name"];
 			//不合格情况
@@ -123,7 +122,7 @@
 			$conn->query($sql2);
 			}
 			// 更新message
-			$sql4 = "INSERT INTO message (content,time,department,state,workstate,route) VALUES ('".$message."','".$write_date."','销售部','0','"$workstate"','"$route"')";
+			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','销售部','0')";
 			$res = $conn->query($sql4);
 			$messageid = $conn->insert_id;
 				$data['messageid'] = $messageid;
