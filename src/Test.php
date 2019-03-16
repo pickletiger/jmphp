@@ -134,13 +134,13 @@
 	set_time_limit(0);//设置脚本最大执行时间
 	ini_set('memory_limit','40960M');
 //	require("../conn.php");
-//	$servername = "192.168.0.136:3306"; //将本地当做服务器，端口默认3306
-//	$username = "admin";  //连接对象
-//	$password = "root";  //连接密码
-	
-	$servername = "127.0.0.1:3306"; //将本地当做服务器，端口默认3306
-	$username = "root";  //连接对象
+	$servername = "192.168.0.133:3306"; //将本地当做服务器，端口默认3306
+	$username = "admin";  //连接对象
 	$password = "123456";  //连接密码
+	
+//	$servername = "127.0.0.1:3306"; //将本地当做服务器，端口默认3306
+//	$username = "root";  //连接对象
+//	$password = "123456";  //连接密码
 	$dbname = "jmmes";	 //数据库名称
 	$conn = new mysqli($servername, $username, $password, $dbname);	
 	if ($conn->connect_error) {
@@ -157,7 +157,7 @@
 //	print_r($testData);
 
 //	生成json文件
-	$myfile = fopen("newfile.json", "w") or die("Unable to open file!");
+	$myfile = fopen("newfile0.json", "w") or die("Unable to open file!");
 	fwrite($myfile, $json);
 	fclose($myfile);
 
