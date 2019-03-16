@@ -1,7 +1,7 @@
 <?php
 	require("../conn.php");
 	$flag = $_POST["flag"];
-//	$flag = "1";
+//	$flag = "5";
 	
 	switch ($flag) {
 		case '0' : 
@@ -106,8 +106,8 @@
 			$route = $_POST["route"];
 			$station = $_POST["station"];
 			$name = $_POST["name"];
-			$workstate = '开工';
-			$message = $name."的".$route."的".$station."已就工！;
+			$workstate = '就工';
+			$message = $name."的".$route."的".$station."已就工！";
 			$write_date = $_POST["write_date"];
 			$name = $_POST["name"];
 			//不合格情况
@@ -123,7 +123,7 @@
 			$conn->query($sql2);
 			}
 			// 更新message
-			$sql4 = "INSERT INTO message (content,time,department,state,workstate,route) VALUES ('".$message."','".$write_date."','销售部','0','"$workstate"','"$route"')";
+			$sql4 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".$write_date."','销售部','0','".$workstate."','".$route."','".$station."')";
 			$res = $conn->query($sql4);
 			$messageid = $conn->insert_id;
 				$data['messageid'] = $messageid;
@@ -194,11 +194,13 @@
 			$route = $_POST["route"];
 			$messageid = $_POST["messageid"];
 			$station = $_POST["station"];
+			$name = $_POST["name"];
+			$workstate = '完工';
 			$message = $name."的".$route."的".$station."已完工！";
 			$sql = "UPDATE workshop_k SET isfinish='1' where modid='".$modid."' and routeid='".$routeid."' and isfinish='2' ORDER by id LIMIT 1 ";
 			$conn->query($sql);
 			//更新message
-			$sql1 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".date("Y-m-d H:i:s")."','计划部','0')";
+			$sql1 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".date("Y-m-d H:i:s")."','计划部','0','".$workstate."','".$route."','".$station."')";
 			$conn->query($sql1);
 			$sql2 = "UPDATE message SET state='1' where id='".$messageid."' ";
 			$conn->query($sql2);
@@ -213,15 +215,18 @@
 			$route = $_POST["route"];
 			$station = $_POST["station"];
 			$messageid = $_POST["messageid"];
-			$message = $route."的".$station."已检验！";
+			$name = $_POST["name"];
+			$workstate = '检验';
+			$message = $name."的".$route."的".$station."已检验！";
 			$write_date = $_POST["write_date"];
-			$sql = "UPDATE workshop_k SET isfinish='".$inspect."' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='1' ORDER by id LIMIT 1";
+			$remark = $_POST["remark"];
+			$sql = "UPDATE workshop_k SET isfinish='".$inspect."' ,remark='".$remark."' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='1' ORDER by id LIMIT 1";
 			$conn->query($sql);
 			// 更新message
 			$sql5 = "UPDATE message SET state='1' where id='".$messageid."' ORDER by id LIMIT 1 ";
 			$conn->query($sql5);
 			
-			$sql4 = "INSERT INTO message (content,time,department,state) VALUES ('".$message."','".$write_date."','计划部','0')";
+			$sql4 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".date("Y-m-d H:i:s")."','计划部','0','".$workstate."','".$route."','".$station."')";
 			$conn->query($sql4);
 			
 			if($inspect === "4"){
