@@ -3,8 +3,8 @@
 	header("Access-Control-Allow-Origin: *");
 	$ret_data = '';
 	$flag = isset($_POST["flag"]) ? $_POST["flag"] : '';
-//	$number = isset($_POST["number"]) ? $_POST["number"] : '';
-	$number = "1000634971";
+	$number = isset($_POST["number"]) ? $_POST["number"] : '';
+//	$number = "1000634971";
 	$gNum = array();
 	$sql = "select figure_number,name,modid,number,count ,part_url from sending where modid = '$number'";
 	$res=$conn->query($sql);
