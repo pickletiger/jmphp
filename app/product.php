@@ -23,13 +23,10 @@
 				$i = 0;
 				while($row = $res->fetch_assoc()) {
 					$arr[$i]['name'] = $row['name'];
-//					$arr[$i]['route'] = $row['route'];
-//					$arr[$i]['station'] = $row['station'];
-//					$arr[$i]['notNum'] = $row['notNum'];
 					$arr[$i]['figure_number'] = $row['figure_number'];
 					$arr[$i]['count'] = $row['count'];
 					$arr[$i]['child_material'] = $row['child_material'];
-//					$arr[$i]['quantity'] = $row['quantity'];
+					$arr[$i]['quantity'] = $row['quantity'];
 					$i++;
 				}
 			}
@@ -45,13 +42,14 @@
 				}
 			}
 			
-			$sql2 = "SELECT station FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$sql2 = "SELECT station,remark FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
 			$res2 = $conn->query($sql2);
 			if($res2 -> num_rows > 0) {
 				
 				$i = 0;
 				while($row2 = $res2->fetch_assoc()) {
 					$arr[$i]['station'] = $row2['station'];
+					$arr[$i]['remark'] = $row2['remark'];
 					$i++;
 				}
 			} else{

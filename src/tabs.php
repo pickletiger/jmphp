@@ -2,9 +2,32 @@
 	require("../conn.php");
 	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
 	$ret_data='';
+	$time=date("Y-m-d h:i:sa");
 	$flag = isset($_POST["flag"])?$_POST["flag"]:'';
+	// $flag = 'Overdue';
 
-	if($flag == "Unread"){
+	if($flag == "Overdue"){
+		$sql = "SELECT id,otime,name,route,station FROM workshop_k where odata = '0' ";
+		
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			$i = 0;
+			while($row=$res->fetch_assoc()){
+				if(strtotime($row["otime"])<strtotime($time)){
+					$message = $row["name"]."的".$row["route"]."的".$row["station"]."已逾期！";
+					$sql1 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".$time."','销售部','0','逾期','".$row["route"]."','".$row["station"]."')";
+					$res1=$conn->query($sql1);
+					$sql2 = "UPDATE workshop_k SET odata='1' WHERE id='".$row["id"]."' ";
+					$res2=$conn->query($sql2);
+		   		}else{
+					echo “zero2早于zero1′;
+		   };
+				$i++;
+			}
+			$ret_data["success"] = 'success';
+		}
+		
+	}else if($flag == "Unread"){
 		$department = $_POST["department"]; 
 		$sql = "SELECT content,time,id,station,workstate,route FROM message WHERE state='0' AND department='".$department."' ";
 		$res=$conn->query($sql);
