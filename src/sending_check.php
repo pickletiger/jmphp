@@ -17,7 +17,6 @@
 			$gNum = explode("#",$row["number"]);
 			$ret_data["data"][$i]["belong_part"] = $gNum[0].'#';
 			$ret_data["data"][$i]["count"] = $row["count"];
-//			$ret_data["data"][$i]["photourl"] = $row["part_url"];
 			$arr = array();
 			$arr=explode(',',$row["part_url"]);
 			$base = "http://jmmes.oss-cn-shenzhen.aliyuncs.com/partUpload/";

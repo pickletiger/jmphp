@@ -144,6 +144,31 @@
 				}
 			}	
 		}
+	}else if($flag == 'partfile'){
+		$sql = "SELECT notNum,reason,backMark,station,remark,radio,part_url FROM onfile WHERE id = '$id'";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			while($row=$res->fetch_assoc()){
+				$ret_data["notNum"] = $row["notNum"];
+				$ret_data["reason"] = $row["reason"];
+				if($row["backMark"]== '0'){
+					$ret_data["backMark"] = "没有退产记录";
+				}else{
+					$ret_data["backMark"] = "有退产记录";
+				}
+				$ret_data["station"] = $row["station"];
+				$ret_data["remark"] = $row["remark"];
+				$ret_data["radio"] = $row["radio"];
+				$arr = array();
+				$arr=explode(',',$row["part_url"]);
+				$base = "http://jmmes.oss-cn-shenzhen.aliyuncs.com/partUpload/";
+				foreach($arr as $key => $url){
+					$arr[$key] = $base .$url;
+				}	
+				$ret_data["photourl"] = $arr;
+				}
+			$ret_data["success"] = 'success';
+		}
 	}
 	else if($flag == 'back'){
 		//查找其所属项目并拼接处其所属部件项目名
