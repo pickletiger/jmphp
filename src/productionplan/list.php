@@ -5,7 +5,7 @@
   $flag = isset($_POST["flag"])?$_POST["flag"]:'';
   if($flag == ''){
 	  // 获取列表数据
-	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,C.name as product_name,C.number,B.route FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id";
+	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,B.backMark,B.reason,C.name as product_name,C.number,B.route FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id ORDER BY B.backMark DESC,routeid";
 	  $res = $conn->query($sql);
 	  if($res->num_rows > 0 ){
 	    $i = 0;
@@ -21,7 +21,14 @@
 	      $arr[$i]['number'] = $number[0] . "#";
 	      $arr[$i]['product_name'] = $number[1] . $row['product_name'];
 	      $arr[$i]['remark'] = $row['remark'];
-	      $arr[$i]['routeid'] = $row['routeid'];
+				$arr[$i]['routeid'] = $row['routeid'];
+				if($row['backMark']=="1"){
+					$arr[$i]['backMark'] = "是";
+				}else{
+					$arr[$i]['backMark'] = "否";
+				}
+				
+				$arr[$i]['reason'] = $row['reason'];
 	      $i++;
 	    }
 	  }
@@ -55,14 +62,15 @@
 	  $json = '{"success":true,"rows":'.$list_data.',"fStandard":'.$fStandard.',"fChild_material":'.$fChild_material.'}';
 	
 	  // 已排产数据列表
-	  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,C. NAME AS product_name,C.number,D.station,D.schedule_date,B.route FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid AND D.isfinish = 0";
+	  $sql4 = "SELECT A.id,A.modid,A.fid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,C. NAME AS product_name,C.number,D.station,D.schedule_date,B.route FROM part A,route B,project C,workshop_k D WHERE B.id = D.routeid AND A.fid = C.id AND A.modid = D.modid AND D.isfinish = 0";
 	  $res4 = $conn->query($sql4);
 	  if($res4->num_rows > 0 ){
 	    $i = 0;
 	    while($row4 = $res4->fetch_assoc()){
 	      $arr4[$i]['partid'] = $row4['id'];
 	      $arr4[$i]['fid'] = $row4['fid'];  
-	      $arr4[$i]['modid'] = $row4['modid']; 
+				$arr4[$i]['modid'] = $row4['modid']; 
+				$arr4[$i]['routeid'] = $row4['routeid']; 
 	      $arr4[$i]['figure_number'] = $row4['figure_number']; 
 	      $arr4[$i]['name'] = $row4['name'];
 	      $arr4[$i]['standard'] = $row4['standard'];
