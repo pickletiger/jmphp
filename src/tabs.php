@@ -45,6 +45,26 @@
 			}
 			$ret_data["success"] = 'success';
 		}
+	}else if($flag == "Search"){
+		$department = $_POST["department"]; 
+		$modid = $_POST["modid"]; 
+
+		$sql = "SELECT content,time,id,station,workstate,route FROM message WHERE state='0' AND department='".$department."' AND content LIKE  '%".$modid."%' ";
+		$res=$conn->query($sql);
+		if($res->num_rows>0){
+			$i = 0;
+			while($row=$res->fetch_assoc()){
+				
+				$ret_data["data"][$i]["address"] = $row["content"];
+				$ret_data["data"][$i]["date"] = $row["time"];
+				$ret_data["data"][$i]["id"] = $row["id"];
+				$ret_data["data"][$i]["tag"] = $row["station"];
+				$ret_data["data"][$i]["state"] = $row["workstate"];
+				$ret_data["data"][$i]["route"] = $row["route"];
+				$i++;
+			}
+			$ret_data["success"] = 'success';
+		}
 	}else if($flag == "Read"){
 		$department = $_POST["department"]; 
 		$sql = "SELECT content,time,id,station,workstate,route FROM message WHERE state='1' AND department='".$department."' ";
