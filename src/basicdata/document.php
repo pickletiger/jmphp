@@ -533,30 +533,19 @@
 				"message" => "",
 				"sql" => ""				
 			);
-			//保存文件并返回相应的保存路径
-			$fileSaveSql = "";//保存的路径，在src目录下
-			if(count($_FILES) > 0){
-				$fileSaveDir = "../uploadfiles";//文件存放目录				
-				//第一张
-				$fileSaveName = getMillisecond();//无后缀的文件名
-				if(isset($_FILES["myfile"])){
-					$uploadfileclass = new UploadFile($_FILES["myfile"],$fileSaveDir,$fileSaveName);
-					$fileSaveSql_tmp = $uploadfileclass->uploadFile();
-					$fileSaveSql = substr($fileSaveSql_tmp, 3);
-				}
-					
-			}
+			
 			//保存单一信息
 			if(count($craftsmanshipTableHeader) > 0){
 				$sql = "INSERT INTO `craftsmanshiptable`(`craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
-				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`firstfive`,`ctime`) VALUES(";
+				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`ctime`) VALUES(";
 				$sql .= "'".$treeId."','1'";
 				$sql .= ",'".$craftsmanshipTableHeader["productName"]."','".$craftsmanshipTableHeader["ownPartName"]."','".$craftsmanshipTableHeader["partsName"]."','".$craftsmanshipTableHeader["workpieceNumber"]."'";
 				$sql .= ",'".$craftsmanshipTableHeader["productDrawingNumber"]."','".$craftsmanshipTableHeader["ownPartDrawingNumber"]."','".$craftsmanshipTableHeader["partsDrawingNumber"]."','".$craftsmanshipTableHeader["quantity"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["finalConclusion"]."','".$craftsmanshipTableFooter["inspector"]."','".$craftsmanshipTableFooter["inspectionAudit"]."','".$craftsmanshipTableFooter["mark"]."','".$craftsmanshipTableFooter["numberOfPlaces"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["changeTheFileNumber"]."','".$craftsmanshipTableFooter["signature"]."','".$craftsmanshipTableFooter["date"]."','".$craftsmanshipTableFooter["establishment"]."','".$craftsmanshipTableFooter["review"]."'";
-				$sql .= ",'".$craftsmanshipTableBodyResult["conclusion"]."','".$craftsmanshipTableBodyResult["inconsistentConfirmation"]."','".$fileSaveSql."','".time()."')";
+				$sql .= ",'".$craftsmanshipTableBodyResult["conclusion"]."','".$craftsmanshipTableBodyResult["inconsistentConfirmation"]."','".time()."')";
 				
+				$returnData["sql"] = $sql;
 				$autoIncrementId = $conn->query($sql) ? $conn->insert_id : "";//获取成功插入后的id
 				
 				if(!empty($autoIncrementId)){
@@ -626,7 +615,6 @@
 							$sql .= ",'".$datainfo["qualityInspection_16"]."','".$datainfo["signatture_2"]."'";
 							$sql .= ")";
 							$conn->query($sql);
-							$returnData["sql"] = $sql;
 						}
 					}
 					
@@ -1015,28 +1003,26 @@
 							$returnData["data"]["craftsmanshipTableBodyResult"]["conclusion"] = $row["conclusion"];
 							$returnData["data"]["craftsmanshipTableBodyResult"]["inconsistentConfirmation"] = $row["inconsistentconfirmation"];
 							
-							$returnData["data"]["craftsmanshipTableBody_1"]["fileOne"] = $row["firstfive"];
-							$returnData["data"]["craftsmanshipTableBody_1"]["imgHtml"] = "";
 							//模板一可遍历的数据
 							$sql = "SELECT * FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$row["id"]."' ORDER BY `id`";
 							$result_2 = $conn->query($sql);
 							if($result_2->num_rows > 0){
 								$i = 0;	
 								while($row_2 = $result_2->fetch_assoc()){
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["serialNumber"] = $row_2["serialnumber"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["processFlow"] = $row_2["processflow"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_13"] = $row_2["selftest_13"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_14"] = $row_2["selftest_14"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_15"] = $row_2["selftest_15"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_16"] = $row_2["selftest_16"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["signature_1"] = $row_2["signature_1"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
-									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["signatture_2"] = $row_2["signature_2"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["serialNumber"] = $row_2["serialnumber"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["processFlow"] = $row_2["processflow"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_13"] = $row_2["selftest_13"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_14"] = $row_2["selftest_14"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_15"] = $row_2["selftest_15"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_16"] = $row_2["selftest_16"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["signature_1"] = $row_2["signature_1"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
+									$returnData["data"]["craftsmanshipTableBody_1"][$i]["signatture_2"] = $row_2["signature_2"];
 									
 									$i++;
 								}
@@ -1366,28 +1352,26 @@
 									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["conclusion"] = $row["conclusion"];
 									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["inconsistentConfirmation"] = $row["inconsistentconfirmation"];
 									
-									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["fileOne"] = $row["firstfive"];
-									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["imgHtml"] = "";
 									//模板一可遍历的数据
 									$sql = "SELECT * FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$row["id"]."' ORDER BY `id`";
 									$result_2 = $conn->query($sql);
 									if($result_2->num_rows > 0){
 										$i = 0;	
 										while($row_2 = $result_2->fetch_assoc()){
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["serialNumber"] = $row_2["serialnumber"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["processFlow"] = $row_2["processflow"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_13"] = $row_2["selftest_13"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_14"] = $row_2["selftest_14"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_15"] = $row_2["selftest_15"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_16"] = $row_2["selftest_16"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["signature_1"] = $row_2["signature_1"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["signatture_2"] = $row_2["signature_2"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["serialNumber"] = $row_2["serialnumber"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["processFlow"] = $row_2["processflow"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_13"] = $row_2["selftest_13"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_14"] = $row_2["selftest_14"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_15"] = $row_2["selftest_15"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_16"] = $row_2["selftest_16"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["signature_1"] = $row_2["signature_1"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["signatture_2"] = $row_2["signature_2"];
 											
 											$i++;
 										}
