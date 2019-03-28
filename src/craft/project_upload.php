@@ -105,7 +105,7 @@
 				$route_arr = explode('→',$q);
 				$length = count($route_arr);
 				for($route_i=1;$route_i<$length;$route_i++){
-					$dsql = "INSERT INTO route VALUES(null,'$id','$t','$route_arr[$route_i]','$route_i','$q','3',null,null,null,null)";
+					$dsql = "INSERT INTO route (pid,modid,route,listid,route_line,isfinish)VALUES('$id','$t','$route_arr[$route_i]','$route_i','$q','3')";
 					$dres = $conn->query($dsql);
 					
 				}

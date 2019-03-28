@@ -5,7 +5,7 @@
   $flag = isset($_POST["flag"])?$_POST["flag"]:'';
   if($flag == ''){
 	  // 获取列表数据
-	  $sql = "SELECT A.modid,A.figure_number,A.name,A.standard,A.count,A.child_material,A.remark,B.id as routeid,B.backMark,B.reason,C.name as product_name,C.number,B.route FROM part A,route B,project C  WHERE B.isfinish='3' and A.modid=B.modid and  B.pid=C.id ORDER BY B.backMark DESC,routeid";
+	  $sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' ORDER BY backMark DESC,routeid";
 	  $res = $conn->query($sql);
 	  if($res->num_rows > 0 ){
 	    $i = 0;
@@ -33,7 +33,7 @@
 	    }
 	  }
 	  // 过滤重复作为下拉checkbox数据
-	  $sql2 = "SELECT DISTINCT standard from part";
+	  $sql2 = "SELECT DISTINCT standard from part"; //DISTINCT通过关键字standard来过滤掉多余的重复记录只保留一条
 	  $res2 = $conn -> query($sql2);
 	  if($res2->num_rows > 0) {
 	    $i = 0;
