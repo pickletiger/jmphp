@@ -1,6 +1,7 @@
 <?php
 	require("../conn.php");
 	$flag = $_POST["flag"];
+	$time=date("Y-m-d h:i:s");
 //	$flag = "5";
 	
 	switch ($flag) {
@@ -31,7 +32,7 @@
 				}
 			}
 			
-			$sql1 = "SELECT route FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$sql1 = "SELECT route FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish='0' ORDER by id LIMIT 1 ";
 			$res1 = $conn->query($sql1);
 			if($res1 -> num_rows > 0) {
 				
@@ -106,7 +107,6 @@
 			$name = $_POST["name"];
 			$workstate = '就工';
 			$message = $name."的".$route."的".$station."已就工！";
-			$write_date = $_POST["write_date"];
 			$name = $_POST["name"];
 			//不合格情况
 			if($isfinish == "4"){
@@ -114,14 +114,14 @@
 				$conn->query($sql3);
 //				die();
 			} else{
-				$sql = "UPDATE workshop_k SET isfinish='2' ,route='$route' ,name='$name' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
+				$sql = "UPDATE workshop_k SET isfinish='2' ,route='$route' ,name='$name' ,stime='".date("Y-m-d")."' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='0' ORDER by id LIMIT 1";
 			$conn->query($sql);
 			// 更新route路线中（在建）
 			$sql2 = "UPDATE route SET isfinish='2' where modid='".$modid."' and id='".$routeid."' ORDER by id LIMIT 1 ";
 			$conn->query($sql2);
 			}
 			// 更新message
-			$sql4 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".$write_date."','销售部','0','".$workstate."','".$route."','".$station."')";
+			$sql4 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".$time."','销售部','0','".$workstate."','".$route."','".$station."')";
 			$res = $conn->query($sql4);
 			$messageid = $conn->insert_id;
 				$data['messageid'] = $messageid;
@@ -195,7 +195,7 @@
 			$name = $_POST["name"];
 			$workstate = '完工';
 			$message = $name."的".$route."的".$station."已完工！";
-			$sql = "UPDATE workshop_k SET isfinish='1' where modid='".$modid."' and routeid='".$routeid."' and isfinish='2' ORDER by id LIMIT 1 ";
+			$sql = "UPDATE workshop_k SET isfinish='1' ,ftime='$time' where modid='".$modid."' and routeid='".$routeid."' and isfinish='2' ORDER by id LIMIT 1 ";
 			$conn->query($sql);
 			//更新message
 			$sql1 = "INSERT INTO message (content,time,department,state,workstate,route,station) VALUES ('".$message."','".date("Y-m-d H:i:s")."','计划部','0','".$workstate."','".$route."','".$station."')";
@@ -216,9 +216,8 @@
 			$name = $_POST["name"];
 			$workstate = '检验';
 			$message = $name."的".$route."的".$station."已检验！";
-			$write_date = $_POST["write_date"];
 			$remark = $_POST["remark"];
-			$sql = "UPDATE workshop_k SET isfinish='".$inspect."' ,remark='".$remark."' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='1' ORDER by id LIMIT 1";
+			$sql = "UPDATE workshop_k SET isfinish='".$inspect."' ,remark='".$remark."' ,utime='$time' WHERE modid='".$modid."' and routeid='".$routeid."' AND isfinish='1' ORDER by id LIMIT 1";
 			$conn->query($sql);
 			// 更新message
 			$sql5 = "UPDATE message SET state='1' where id='".$messageid."' ORDER by id LIMIT 1 ";
@@ -260,6 +259,146 @@
 					$res2 = $conn->query($sql7);
 				}
 			}
+			break;
+			case '7' : 
+			$id = $_POST["id"];
+			$pid = $_POST["pid"];
+			$modid = $_POST["modid"];
+			$routeid = $_POST["routeid"];
+			
+//			$id = '2279';
+//			$pid = "8";
+//			$modid = "1000634982";
+//			$routeid = "7513";
+			
+//			$sql = "SELECT A.modid,A.figure_number,A.name,A.count,A.child_material,A.remark,B.id AS routeid,C.route,C.id,C.notNum,C.station FROM part A,route B,workshop_k C WHERE C.isfinish = '0' AND A.modid = B.modid AND B.id = C.routeid AND B.modid = C.modid ORDER BY id LIMIT 1";
+			$sql = "select name,figure_number,count,child_material,quantity,modid from part where id='".$id."' ";
+			$res = $conn->query($sql);
+			if($res -> num_rows > 0) {
+				
+				$i = 0;
+				while($row = $res->fetch_assoc()) {
+					$arr[$i]['name'] = $row['name'];
+					$arr[$i]['figure_number'] = $row['figure_number'];
+					$arr[$i]['count'] = $row['count'];
+					$arr[$i]['child_material'] = $row['child_material'];
+					$arr[$i]['quantity'] = $row['quantity'];
+					$i++;
+				}
+			}
+			
+			$sql1 = "SELECT route FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish='2' ORDER by id LIMIT 1 ";
+			$res1 = $conn->query($sql1);
+			if($res1 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row1 = $res1->fetch_assoc()) {
+					$arr[$i]['route'] = $row1['route'];
+					$i++;
+				}
+			}
+			
+			$sql2 = "SELECT station,remark FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$res2 = $conn->query($sql2);
+			if($res2 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row2 = $res2->fetch_assoc()) {
+					$arr[$i]['station'] = $row2['station'];
+					$arr[$i]['remark'] = $row2['remark'];
+					$i++;
+				}
+			} else{
+				//若workshop_k无数据跳出循环
+				die();
+			}
+			
+			$sql3 = "SELECT notNum FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$res3 = $conn->query($sql3);
+			if($res3 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row3 = $res3->fetch_assoc()) {
+					$arr[$i]['notNum'] = $row3['notNum'];
+					$i++;
+				}
+			} else{
+				//若workshop_k无数据跳出循环
+				die();
+			}
+			
+			$json = json_encode($arr);
+			echo $json;
+			break;
+			case '8' : 
+			$id = $_POST["id"];
+			$pid = $_POST["pid"];
+			$modid = $_POST["modid"];
+			$routeid = $_POST["routeid"];
+			
+//			$id = '2279';
+//			$pid = "8";
+//			$modid = "1000634982";
+//			$routeid = "7513";
+			
+//			$sql = "SELECT A.modid,A.figure_number,A.name,A.count,A.child_material,A.remark,B.id AS routeid,C.route,C.id,C.notNum,C.station FROM part A,route B,workshop_k C WHERE C.isfinish = '0' AND A.modid = B.modid AND B.id = C.routeid AND B.modid = C.modid ORDER BY id LIMIT 1";
+			$sql = "select name,figure_number,count,child_material,quantity,modid from part where id='".$id."' ";
+			$res = $conn->query($sql);
+			if($res -> num_rows > 0) {
+				
+				$i = 0;
+				while($row = $res->fetch_assoc()) {
+					$arr[$i]['name'] = $row['name'];
+					$arr[$i]['figure_number'] = $row['figure_number'];
+					$arr[$i]['count'] = $row['count'];
+					$arr[$i]['child_material'] = $row['child_material'];
+					$arr[$i]['quantity'] = $row['quantity'];
+					$i++;
+				}
+			}
+			
+			$sql1 = "SELECT route FROM route WHERE modid='".$modid."' AND pid='".$pid."' AND isfinish='2' ORDER by id desc LIMIT 1 ";
+			$res1 = $conn->query($sql1);
+			if($res1 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row1 = $res1->fetch_assoc()) {
+					$arr[$i]['route'] = $row1['route'];
+					$i++;
+				}
+			}
+			
+			$sql2 = "SELECT station,remark FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$res2 = $conn->query($sql2);
+			if($res2 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row2 = $res2->fetch_assoc()) {
+					$arr[$i]['station'] = $row2['station'];
+					$arr[$i]['remark'] = $row2['remark'];
+					$i++;
+				}
+			} else{
+				//若workshop_k无数据跳出循环
+				die();
+			}
+			
+			$sql3 = "SELECT notNum FROM workshop_k WHERE modid='".$modid."' AND routeid='".$routeid."' AND isfinish!='3' ORDER by id LIMIT 1 ";
+			$res3 = $conn->query($sql3);
+			if($res3 -> num_rows > 0) {
+				
+				$i = 0;
+				while($row3 = $res3->fetch_assoc()) {
+					$arr[$i]['notNum'] = $row3['notNum'];
+					$i++;
+				}
+			} else{
+				//若workshop_k无数据跳出循环
+				die();
+			}
+			
+			$json = json_encode($arr);
+			echo $json;
 			break;
 	}
 	$conn->close();

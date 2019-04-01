@@ -102,7 +102,7 @@
 		$asql = "UPDATE route set listid = listid+1 WHERE listid >= '$nextid' AND modid='$modid' AND pid='$pid'";
 		$ares = $conn->query($asql);
 		// 新增节点
-		$bsql = "INSERT INTO route VALUES(null,'$pid','$modid','$route','$nextid',null,'0',null,null,null,null)";
+		$bsql = "INSERT INTO route (pid,modid,route,listid,isfinish) VALUES('$pid','$modid','$route','$nextid','3')";
 		$bres = $conn->query($bsql);
 		// 更新该部件的route_line 字段
 		$ret_data["route_line"] = '';
