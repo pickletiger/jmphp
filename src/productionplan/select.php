@@ -130,7 +130,7 @@
 		$searchValue = isset($_POST["searchValue"]) ? $_POST["searchValue"] : '';
 		$searchCondition = isset($_POST["searchCondition"]) ? $_POST["searchCondition"] : '';
 		if ($isfinish == '3') {
-			$sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' and $searchCondition = '$searchValue' ORDER BY backMark DESC,routeid";
+			$sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' and $searchCondition LIKE '%$searchValue%' ORDER BY backMark DESC,routeid";
 			$res = $conn -> query($sql);
 			if ($res -> num_rows == TRUE) {
 				$i = 0;
@@ -177,7 +177,7 @@
 			
 			$arr4 = '';
 			// 已排产数据列表
-			$sql4 = "SELECT id,modid,fid,figure_number,name,standard,count,child_material,remark,routeid,product_name,number,station,schedule_date,route FROM Delivered WHERE Wisfinish = 0  and $searchCondition = '$searchValue' ";
+			$sql4 = "SELECT id,modid,fid,figure_number,name,standard,count,child_material,remark,routeid,product_name,number,station,schedule_date,route FROM Delivered WHERE Wisfinish = 0  and $searchCondition LIKE '%$searchValue%'";
 			$res4 = $conn -> query($sql4);
 			if ($res4 -> num_rows > 0) {
 				$i = 0;
@@ -214,7 +214,7 @@
 			
 			$arr7 = '';	
 			//生产中数据列表
-			$sql7 = "Select * from projectIng   and $searchCondition = '$searchValue'";
+			$sql7 = "Select * from projectIng   and $searchCondition LIKE '%$searchValue%'";
 			$res7 = $conn -> query($sql7);
 			if ($res7 -> num_rows > 0) {
 				$i = 0;
@@ -246,6 +246,7 @@
 			}
 		}
 	}
+//	echo $sql;
 	echo $json;
 	$conn -> close();
 ?>
