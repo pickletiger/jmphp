@@ -5,7 +5,7 @@
 	$ret_data = '';
 	$flag = isset($_POST["flag"]) ? $_POST["flag"] : '';
 	if($flag == "Select"){
-		$sql = "select Wmodid,station,name,route,count,figure_number,radio,photourl from test where isfinish = '1'";
+		$sql = "select Wmodid,station,name,route,count,figure_number,radio,photourl from test where isfinish = '1' ORDER BY ftime desc ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
