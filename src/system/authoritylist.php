@@ -41,7 +41,12 @@
 			$ret_data["success"] = 'success';
 		}
 	}else{
-		
+		$gNum = $_POST["gNum"];
+		$sql = "DELETE FROM `user` WHERE  gNum = '$gNum'";
+		$res=$conn->query($sql);
+		if($res==true){
+			$ret_data["success"] = 'success';
+		}
 	}
 		
 	
