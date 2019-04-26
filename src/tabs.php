@@ -71,7 +71,7 @@
 		}
 	}else if($flag == "Read"){
 		$department = $_POST["department"]; 
-		$sql = "SELECT content,time,id,station,workstate,route FROM message WHERE state='1' AND department='".$department."' ";
+		$sql = "SELECT content,time,id,station,workstate,route,workshop,cuser FROM message WHERE state='1' AND department='".$department."' ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -83,12 +83,14 @@
 				$ret_data["data"][$i]["tag"] = $row["station"];
 				$ret_data["data"][$i]["state"] = $row["workstate"];
 				$ret_data["data"][$i]["route"] = $row["route"];
+				$ret_data["data"][$i]["workshop"] = $row["workshop"];
+				$ret_data["data"][$i]["cuser"] = $row["cuser"];
 				$i++;
 			}
 			$ret_data["success"] = 'success';
 		}
 	}else if($flag == "Recycle"){
-		$sql = "SELECT content,time,id,station,workstate,route FROM message where state='1' or state='0' ";
+		$sql = "SELECT content,time,id,station,workstate,route,workshop,cuser FROM message where state='1' or state='0' ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -100,6 +102,8 @@
 				$ret_data["data"][$i]["tag"] = $row["station"];
 				$ret_data["data"][$i]["state"] = $row["workstate"];
 				$ret_data["data"][$i]["route"] = $row["route"];
+				$ret_data["data"][$i]["workshop"] = $row["workshop"];
+				$ret_data["data"][$i]["cuser"] = $row["cuser"];
 				$i++;
 			}
 			$ret_data["success"] = 'success';
