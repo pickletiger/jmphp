@@ -20,39 +20,94 @@
 				"message" => "",
 				"data" => array(
 					0 => array(
-						"label" => "焊接工艺及检验记录",
+						"label" => "转马类",
 						"children" => array()
 					),
 					1 => array(
-						"label" => "机械制造工艺及检验表",
+						"label" => "滑行类",
+						"children" => array()
+					),
+					2 => array(
+						"label" => "陀螺类",
+						"children" => array()
+					),
+					3 => array(
+						"label" => "飞行塔类",
+						"children" => array()
+					),
+					4 => array(
+						"label" => "赛车类",
+						"children" => array()
+					),
+					5 => array(
+						"label" => "自控飞机类",
+						"children" => array()
+					),
+					6 => array(
+						"label" => "观览车类",
+						"children" => array()
+					),
+					7 => array(
+						"label" => "小火车类",
+						"children" => array()
+					),
+					8 => array(
+						"label" => "架空游览车类",
+						"children" => array()
+					),
+					9 => array(
+						"label" => "水上游乐设施",
+						"children" => array()
+					),
+					10 => array(
+						"label" => "碰碰车类",
+						"children" => array()
+					),
+					11 => array(
+						"label" => "电池车类",
+						"children" => array()
+					),
+					12 => array(
+						"label" => "摇摆类",
+						"children" => array()
+					),
+					13 => array(
+						"label" => "回旋类",
+						"children" => array()
+					),
+					14 => array(
+						"label" => "其他类",
+						"children" => array()
+					),
+					15 => array(
+						"label" => "科技娱乐类",
 						"children" => array()
 					)
 				)
 			);
 			
-			//查询焊接表
-			$sql = "SELECT `id`,`proname` FROM `weldingtree`";
-			$result = $conn->query($sql);
-			if($result->num_rows > 0){
-				$i = 0;
-				while($row = $result->fetch_assoc()){
-					$returnData["data"][0]["children"][$i]["tableFlag"] = 1;//用于判断焊接还是制造：1为焊接，2为工艺
-					$returnData["data"][0]["children"][$i]["label"] = $row["proname"];
-					$returnData["data"][0]["children"][$i]["relateId"] = $row["id"];
-					$i++;
-				}
-			}
-			
-			//查询制造表																																																													表
-			$sql = "SELECT `id`,`proname` FROM `craftsmanshiptree`";
-			$result = $conn->query($sql);
-			if($result->num_rows > 0){
-				$i = 0;
-				while($row = $result->fetch_assoc()){
-					$returnData["data"][1]["children"][$i]["tableFlag"] = 2;//用于判断焊接还是制造：1为焊接，2为工艺
-					$returnData["data"][1]["children"][$i]["label"] = $row["proname"];
-					$returnData["data"][1]["children"][$i]["relateId"] = $row["id"];
-					$i++;
+			//查询大类树节点,0-15分别对应存货分类的16类
+			for($j=0;$j<16;$j++){
+				$sql = "SELECT `id`,`proname` FROM `weldingtree` where category='".$j."'";
+				$result = $conn->query($sql);
+				if($result->num_rows > 0){
+					$i = 0;
+					while($row = $result->fetch_assoc()){
+						//通过时间戳获取同类表id
+						$sql1 = "SELECT b.`id` FROM `weldingtree` a,`craftsmanshiptree` b WHERE a.`id`='".$row["id"]."' and a.ctime=b.ctime";
+						$result1 = $conn->query($sql1);
+						$row1 = $result1->fetch_assoc();
+						$returnData["data"][$j]["children"][$i]["tableFlag"] = 1;//用于判断第二层树
+						$returnData["data"][$j]["children"][$i]["label"] = $row["proname"];
+						$returnData["data"][$j]["children"][$i]["relateId"] = $row["id"];
+						$returnData["data"][$j]["children"][$i]["children"][0]["label"] = "焊接工艺及检验记录";
+						$returnData["data"][$j]["children"][$i]["children"][0]["thereFlag"] = 1;
+						$returnData["data"][$j]["children"][$i]["children"][0]["thereId"] = $row["id"];
+						$returnData["data"][$j]["children"][$i]["children"][1]["label"] = "机械制造工艺及检验表";
+						$returnData["data"][$j]["children"][$i]["children"][1]["thereFlag"] = 2;
+						$returnData["data"][$j]["children"][$i]["children"][1]["thereId"] = $row1["id"];
+						$i++;
+					}
 				}
 			}
 			
@@ -73,25 +128,16 @@
 				"message" => ""				
 			);
 			
-			switch($tableFlag){
-				case "1": //表【weldingtree】
-					$sql = "INSERT INTO `weldingtree`(`proname`,`procode`,`ctime`) VALUES('".$proname."','".$procode."','".time()."')";
-					if(!$conn->query($sql)){
-						$returnData["state"] = "fail";
-						$returnData["message"] = "服务器错误";
-					}
-					break;
-				case "2"://表【craftsmanshiptree】
-					$sql = "INSERT INTO `craftsmanshiptree`(`proname`,`procode`,`ctime`) VALUES('".$proname."','".$procode."','".time()."')";
-					if(!$conn->query($sql)){
-						$returnData["state"] = "fail";
-						$returnData["message"] = "服务器错误";
-					}
-					break;
-				default :
-					$returnData["state"] = "fail";
-					$returnData["message"] = "没有对应的表标志";
+			$sql = "INSERT INTO `weldingtree`(`proname`,`procode`,`category`,`ctime`) VALUES('".$proname."','".$procode."','".$tableFlag."','".time()."')";
+			$result = $conn->query($sql);
+			$sql1 = "INSERT INTO `craftsmanshiptree`(`proname`,`procode`,`category`,`ctime`) VALUES('".$proname."','".$procode."','".$tableFlag."','".time()."')";
+			$result1 = $conn->query($sql1);
+			if(!$result&&!$result1){
+				$returnData["state"] = "fail";
+				$returnData["message"] = "服务器错误";
 			}
+			
+			
 
 			$json = json_encode($returnData);
 			echo $json;
@@ -526,26 +572,36 @@
 			$craftsmanshipTableBody_1 = isset($_POST["craftsmanshipTableBody_1"]) ? json_decode($_POST["craftsmanshipTableBody_1"],TRUE) : array();
 			$craftsmanshipTableBodyResult = isset($_POST["craftsmanshipTableBodyResult"]) ? json_decode($_POST["craftsmanshipTableBodyResult"],TRUE) : array();
 			$craftsmanshipTableFooter = isset($_POST["craftsmanshipTableFooter"]) ? json_decode($_POST["craftsmanshipTableFooter"],TRUE) : array();
-			
 			//返回数据
 			$returnData = array(
 				"state" => "success",
 				"message" => "",
 				"sql" => ""				
 			);
-			
+			//保存文件并返回相应的保存路径
+			$fileSaveSql = "";//保存的路径，在src目录下
+			if(count($_FILES) > 0){
+				$fileSaveDir = "../uploadfiles";//文件存放目录				
+				//第一张
+				$fileSaveName = getMillisecond();//无后缀的文件名
+				if(isset($_FILES["myfile"])){
+					$uploadfileclass = new UploadFile($_FILES["myfile"],$fileSaveDir,$fileSaveName);
+					$fileSaveSql_tmp = $uploadfileclass->uploadFile();
+					$fileSaveSql = substr($fileSaveSql_tmp, 3);
+				}
+					
+			}
 			//保存单一信息
 			if(count($craftsmanshipTableHeader) > 0){
 				$sql = "INSERT INTO `craftsmanshiptable`(`craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`";
-				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`ctime`) VALUES(";
+				$sql .= ",`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`firstfive`,`ctime`) VALUES(";
 				$sql .= "'".$treeId."','1'";
 				$sql .= ",'".$craftsmanshipTableHeader["productName"]."','".$craftsmanshipTableHeader["ownPartName"]."','".$craftsmanshipTableHeader["partsName"]."','".$craftsmanshipTableHeader["workpieceNumber"]."'";
 				$sql .= ",'".$craftsmanshipTableHeader["productDrawingNumber"]."','".$craftsmanshipTableHeader["ownPartDrawingNumber"]."','".$craftsmanshipTableHeader["partsDrawingNumber"]."','".$craftsmanshipTableHeader["quantity"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["finalConclusion"]."','".$craftsmanshipTableFooter["inspector"]."','".$craftsmanshipTableFooter["inspectionAudit"]."','".$craftsmanshipTableFooter["mark"]."','".$craftsmanshipTableFooter["numberOfPlaces"]."'";
 				$sql .= ",'".$craftsmanshipTableFooter["changeTheFileNumber"]."','".$craftsmanshipTableFooter["signature"]."','".$craftsmanshipTableFooter["date"]."','".$craftsmanshipTableFooter["establishment"]."','".$craftsmanshipTableFooter["review"]."'";
-				$sql .= ",'".$craftsmanshipTableBodyResult["conclusion"]."','".$craftsmanshipTableBodyResult["inconsistentConfirmation"]."','".time()."')";
-				
-				$returnData["sql"] = $sql;
+				$sql .= ",'".$craftsmanshipTableBodyResult["conclusion"]."','".$craftsmanshipTableBodyResult["inconsistentConfirmation"]."','".$fileSaveSql."','".time()."')";
+				echo $sql;
 				$autoIncrementId = $conn->query($sql) ? $conn->insert_id : "";//获取成功插入后的id
 				
 				if(!empty($autoIncrementId)){
@@ -615,6 +671,7 @@
 							$sql .= ",'".$datainfo["qualityInspection_16"]."','".$datainfo["signatture_2"]."'";
 							$sql .= ")";
 							$conn->query($sql);
+							$returnData["sql"] = $sql;
 						}
 					}
 					
@@ -1003,26 +1060,28 @@
 							$returnData["data"]["craftsmanshipTableBodyResult"]["conclusion"] = $row["conclusion"];
 							$returnData["data"]["craftsmanshipTableBodyResult"]["inconsistentConfirmation"] = $row["inconsistentconfirmation"];
 							
+							$returnData["data"]["craftsmanshipTableBody_1"]["fileOne"] = $row["firstfive"];
+							$returnData["data"]["craftsmanshipTableBody_1"]["imgHtml"] = "";
 							//模板一可遍历的数据
 							$sql = "SELECT * FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$row["id"]."' ORDER BY `id`";
 							$result_2 = $conn->query($sql);
 							if($result_2->num_rows > 0){
 								$i = 0;	
 								while($row_2 = $result_2->fetch_assoc()){
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["serialNumber"] = $row_2["serialnumber"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["processFlow"] = $row_2["processflow"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_13"] = $row_2["selftest_13"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_14"] = $row_2["selftest_14"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_15"] = $row_2["selftest_15"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["selfTest_16"] = $row_2["selftest_16"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["signature_1"] = $row_2["signature_1"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
-									$returnData["data"]["craftsmanshipTableBody_1"][$i]["signatture_2"] = $row_2["signature_2"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["serialNumber"] = $row_2["serialnumber"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["processFlow"] = $row_2["processflow"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_13"] = $row_2["selftest_13"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_14"] = $row_2["selftest_14"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_15"] = $row_2["selftest_15"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_16"] = $row_2["selftest_16"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["signature_1"] = $row_2["signature_1"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
+									$returnData["data"]["craftsmanshipTableBody_1"]["rowsData"][$i]["signatture_2"] = $row_2["signature_2"];
 									
 									$i++;
 								}
@@ -1352,26 +1411,28 @@
 									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["conclusion"] = $row["conclusion"];
 									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBodyResult"]["inconsistentConfirmation"] = $row["inconsistentconfirmation"];
 									
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["fileOne"] = $row["firstfive"];
+									$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["imgHtml"] = "";
 									//模板一可遍历的数据
 									$sql = "SELECT * FROM `craftsmanshiptableone` WHERE `craftsmanship_id`='".$row["id"]."' ORDER BY `id`";
 									$result_2 = $conn->query($sql);
 									if($result_2->num_rows > 0){
 										$i = 0;	
 										while($row_2 = $result_2->fetch_assoc()){
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["serialNumber"] = $row_2["serialnumber"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["processFlow"] = $row_2["processflow"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_13"] = $row_2["selftest_13"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_14"] = $row_2["selftest_14"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_15"] = $row_2["selftest_15"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["selfTest_16"] = $row_2["selftest_16"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["signature_1"] = $row_2["signature_1"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
-											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"][$i]["signatture_2"] = $row_2["signature_2"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["serialNumber"] = $row_2["serialnumber"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["processFlow"] = $row_2["processflow"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["inspectionContent"] = $row_2["inspectioncontent"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["skillsRequirement"] = $row_2["skillsrequirement"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_13"] = $row_2["selftest_13"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_14"] = $row_2["selftest_14"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_15"] = $row_2["selftest_15"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["selfTest_16"] = $row_2["selftest_16"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["signature_1"] = $row_2["signature_1"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_13"] = $row_2["qualityinspection_13"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_14"] = $row_2["qualityinspection_14"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_15"] = $row_2["qualityinspection_15"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["qualityInspection_16"] = $row_2["qualityinspection_16"];
+											$returnData["data"][$indexcraftsmanship]["craftsmanshipTableBody_1"]["rowsData"][$i]["signatture_2"] = $row_2["signature_2"];
 											
 											$i++;
 										}
@@ -1427,6 +1488,11 @@
 			//接收数据
 			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] : "";//表【weldingtree】的id
 			
+			//通过时间戳获取同类表id
+			$sql = "SELECT b.`id` FROM `weldingtree` a,`craftsmanshiptree` b WHERE a.`id`='".$relateId."' and a.ctime=b.ctime";
+			$result = $conn->query($sql);
+			$row = $result->fetch_assoc();
+			$relateId1 = $row["id"];
 			//返回数据
 			$ret_data = array(
 				"state" => "success",
@@ -1494,14 +1560,9 @@
 					$ret_data["message"] .= "表weldingtablefour记录删除失败；";
 				}
 			}
-						
-			$json = json_encode($ret_data);
-			echo $json;
-			break;
-		
-		case "deleteTreeNodeCraftsmanship";//--------------------------根据ID删除制造的树节点--------------------------------------------------
-			//接收数据
-			$relateId = isset($_GET["relateId"]) ? $_GET["relateId"] : "";//表【craftsmanshiptree】的id
+
+			//表1查询出的id
+			$relateId = $relateId1;			
 			
 			//返回数据
 			$returnData = array(
@@ -1569,7 +1630,92 @@
 			$json = json_encode($returnData);
 			echo $json;
 			break;
+		//	焊接工艺卡复制
+		case "copyWelding":
+			//接收数据
+			$relateId = isset($_GET["contactId"]) ? $_GET["contactId"] : "";//表【weldingtree】的id
+			//返回给前端的数据
+			$returnData = array(
+				"state" => "success",
+				"message" => ""
+			);
+			//获取旧时间，复制修改函数REPLACE需要定值修改
+			$sql = "select `weldingtree_id`,`ctime` from `weldingtable` where id='".$relateId."'";
+			$result = $conn->query($sql);
+			$row = $result->fetch_assoc();
+			$oldTime = $row["ctime"];
+			//复制首表信息，返回自增id
+			$sql = "INSERT INTO `weldingtable`(`weldingtree_id`,`processnumber`,`quantity`,`workpiecenumber`,`workshop`,`workordernumber`,`producname`,`productcode`,`partname`,`partdrawingnumber`,`finallyresult`,`inspectorsingnature`,`finallydate`,`weldingsequence`,`weldingnumbermap`,`ctime`)";
+			$sql .= "select `weldingtree_id`,`processnumber`,`quantity`,`workpiecenumber`,`workshop`,`workordernumber`,`producname`,`productcode`,`partname`,`partdrawingnumber`,`finallyresult`,`inspectorsingnature`,`finallydate`,`weldingsequence`,`weldingnumbermap`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `weldingtable` where `id` = '".$relateId."'";
+			$autoIncrementId = $conn->query($sql) ? $conn->insert_id : "";//获取成功插入后的id
+			
+			if(!empty($autoIncrementId)){
+				//复制第一个表信息
+				$sql = "INSERT INTO `weldingtableone`(`weldingtable_id`,`weldingnumber`,`materialfirst`,`specificationsfirst`,`materialsecond`,`specificationssecond`,`weldingmethod`,`grooveform`,`consumables`,`specifications`,`weldinglayer`,`weldingtrack`,`gas`,`current`,`actualcurrentfirst`,`actualcurrentsecond`,`voltage`,`actualvoltagefirst`,`actualvoltagesecond`,`specificationnumber`,`ratingnumber`,`flawdetection`,`steelstamp`,`ctime`)";
+				$sql .= "select REPLACE(`weldingtable_id`,'".$relateId."','".$autoIncrementId."'),`weldingnumber`,`materialfirst`,`specificationsfirst`,`materialsecond`,`specificationssecond`,`weldingmethod`,`grooveform`,`consumables`,`specifications`,`weldinglayer`,`weldingtrack`,`gas`,`current`,`actualcurrentfirst`,`actualcurrentsecond`,`voltage`,`actualvoltagefirst`,`actualvoltagesecond`,`specificationnumber`,`ratingnumber`,`flawdetection`,`steelstamp`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `weldingtableone` where `weldingtable_id` = '".$relateId."'";
+				$conn->query($sql);
 				
+				//复制第二个表信息
+				$sql = "INSERT INTO `weldingtabletwo`(`weldingtable_id`,`serialnumber`,`checkcontent`,`processrequirement`,`testresult`,`singnature`,`ctime`)";
+				$sql .= "select REPLACE(`weldingtable_id`,'".$relateId."','".$autoIncrementId."'),`serialnumber`,`checkcontent`,`processrequirement`,`testresult`,`singnature`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `weldingtabletwo` where `weldingtable_id` = '".$relateId."'";
+				$conn->query($sql);
+				
+				//复制第三个表信息
+				$sql = "INSERT INTO `weldingtablethree`(`weldingtable_id`,`weldingnumber`,`requirementone`,`testresultone`,`singnatureone`,`requirementtwo`,`testresultonetwo`,`singnatureonetwo`,`requirementthree`,`testresultonethree`,`singnatureonethree`,`ctime`)";
+				$sql .= "select REPLACE(`weldingtable_id`,'".$relateId."','".$autoIncrementId."'),`weldingnumber`,`requirementone`,`testresultone`,`singnatureone`,`requirementtwo`,`testresultonetwo`,`singnatureonetwo`,`requirementthree`,`testresultonethree`,`singnatureonethree`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `weldingtablethree` where `weldingtable_id` = '".$relateId."'";
+				$conn->query($sql);
+				
+				//复制第四个表信息
+				$sql = "INSERT INTO `weldingtablefour`(`weldingtable_id`,`weldingnumber`,`requirementone`,`testresultone`,`singnatureone`,`requirementtwo`,`testresultonetwo`,`singnatureonetwo`,`requirementthree`,`testresultonethree`,`singnatureonethree`,`ctime`)";
+				$sql .= "select REPLACE(`weldingtable_id`,'".$relateId."','".$autoIncrementId."'),`weldingnumber`,`requirementone`,`testresultone`,`singnatureone`,`requirementtwo`,`testresultonetwo`,`singnatureonetwo`,`requirementthree`,`testresultonethree`,`singnatureonethree`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `weldingtablefour` where `weldingtable_id` = '".$relateId."'";
+				$conn->query($sql);
+				$returnData["message"] = "保存成功";
+			}else{
+				$returnData["state"] = "failure";
+				$returnData["message"] = "自增值ID为空";
+			}
+			
+			$json = json_encode($returnData);
+			echo $json;
+			break;
+		//制造工艺卡复制	
+		case "copyCraftsmanship":
+			//接收数据
+			$relateId = isset($_GET["contactId"]) ? $_GET["contactId"] : "";//表【weldingtree】的id
+			//返回给前端的数据
+			$returnData = array(
+				"state" => "success",
+				"message" => ""
+			);
+			//获取旧时间，复制修改函数REPLACE需要定值修改
+			$sql = "select `craftsmanshiptree_id`,`ctime` from `craftsmanshiptable` where id='".$relateId."'";
+			$result = $conn->query($sql);
+			$row = $result->fetch_assoc();
+			$oldTime = $row["ctime"];
+			//复制首表信息，也是模板三的表，返回自增id
+			$sql = "INSERT INTO `craftsmanshiptable`(`craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`,`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`firstfive`,`ctime`)";
+			$sql .= "select `craftsmanshiptree_id`,`model`,`productname`,`ownpartname`,`partname`,`workpiecenumber`,`productdrawnumber`,`ownpartdrawnumber`,`partdrawnumber`,`quantity`,`finalconclusion`,`inspector`,`inspectionaudit`,`mark`,`numberofplaces`,`changethefilenumber`,`signature`,`date`,`establishment`,`review`,`conclusion`,`inconsistentconfirmation`,`firstfive`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `craftsmanshiptable` where `id` = '".$relateId."'";
+			$autoIncrementId = $conn->query($sql) ? $conn->insert_id : "";//获取成功插入后的id
+			
+			if(!empty($autoIncrementId)){
+				//复制模板一表信息
+				$sql = "INSERT INTO `craftsmanshiptableone`(`craftsmanship_id`,`serialnumber`,`processflow`,`inspectioncontent`,`skillsrequirement`,`selftest_13`,`selftest_14`,`selftest_15`,`selftest_16`,`signature_1`,`qualityinspection_13`,`qualityinspection_14`,`qualityinspection_15`,`qualityinspection_16`,`signature_2`)";
+				$sql .= "select REPLACE(`craftsmanship_id`,'".$relateId."','".$autoIncrementId."'),`serialnumber`,`processflow`,`inspectioncontent`,`skillsrequirement`,`selftest_13`,`selftest_14`,`selftest_15`,`selftest_16`,`signature_1`,`qualityinspection_13`,`qualityinspection_14`,`qualityinspection_15`,`qualityinspection_16`,`signature_2` from `craftsmanshiptableone` where `craftsmanship_id` = '".$relateId."'";
+				$conn->query($sql);
+				
+				//复制模板二表信息
+				$sql = "INSERT INTO `craftsmanshiptabletwo`(`craftsmanship_id`,`serialnumber`,`processflow`,`inspectioncontent`,`skillsrequirement`,`selftest`,`signature`,`ctime`)";
+				$sql .= "select REPLACE(`craftsmanship_id`,'".$relateId."','".$autoIncrementId."'),`serialnumber`,`processflow`,`inspectioncontent`,`skillsrequirement`,`selftest`,`signature`,REPLACE(`ctime`,'".$oldTime."','".time()."') from `craftsmanshiptabletwo` where `craftsmanship_id` = '".$relateId."'";
+				$conn->query($sql);
+				$returnData["message"] = "保存成功";
+			}else{
+				$returnData["state"] = "failure";
+				$returnData["message"] = "自增值ID为空";
+			}
+			
+			$json = json_encode($returnData);
+			echo $json;
+			break;
 		default :
 			echo '{"state":"failure","message":"没有对应的标志"}';
 	}

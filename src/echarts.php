@@ -5,6 +5,7 @@
 	    public $name;  
 	    public $value;  
 	}  
+	
 	$data = array();
 	$sql = "select notNum,count(name) as count from workshop_k where notNum != '0' group by notNum ";
 	$res=$conn->query($sql);
@@ -17,5 +18,6 @@
 			$data[] = $alter;
 		}
 	}
+	
 	echo json_encode($data);
 ?>
