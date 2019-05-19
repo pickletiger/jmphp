@@ -41,8 +41,10 @@
 		$objPHPExcel = $objReader->load($filetmp);
 		$sheet = $objPHPExcel->getSheet(0);  // 读取第一个sheet表
 		$highestRow = $sheet->getHighestRow(); // 取得总行数 
-   	 	
-	 	$bsql = "INSERT INTO project VALUES(null,null,'$name','$type','$number','$date','2',null,null,null,null,null)";
+   	 	$arr = explode('#',$number);
+   	 	$pNumber = $arr[0]."#";
+   	 	$ctime = date('Y-m-d H:i:s');
+	 	$bsql = "INSERT INTO project (name,type,number,pNumber,end_date,isfinish,ctime)VALUES('$name','$type','$number','$pNumber','$date','2','$ctime')";
 		$bres = $conn->query($bsql);
 	  	$csql = "SELECT id FROM project WHERE number = '$number'";
 	 	$cres = $conn->query($csql);
@@ -105,7 +107,7 @@
 				$route_arr = explode('→',$q);
 				$length = count($route_arr);
 				for($route_i=1;$route_i<$length;$route_i++){
-					$dsql = "INSERT INTO route (pid,modid,route,listid,route_line,isfinish)VALUES('$id','$t','$route_arr[$route_i]','$route_i','$q','3')";
+					$dsql = "INSERT INTO route (pid,modid,route,listid,route_line,isfinish,pNumber)VALUES('$id','$t','$route_arr[$route_i]','$route_i','$q','3','$pNumber')";
 					$dres = $conn->query($dsql);
 					
 				}
@@ -113,7 +115,7 @@
 			
 	       
 	        if($partname!=$projectname){
-		    	$sql = "INSERT INTO part VALUES(null,'$id','$e','$i','$partname','$k','$l','$m','2','$n','$o','$p','$s','$t','$u','$y','$r','3',null,null,null,null,null)"; //null 为主键id，自增可用null表示自动添加
+		    	$sql = "INSERT INTO part (fid,belong_part,pNumber,figure_number,name,material,child_material,standard,radio,category,quantity,unit,count,modid,child_number,child_unit,remark,isfinish) VALUES('$id','$e','$pNumber','$i','$partname','$k','$l','$m','2','$n','$o','$p','$s','$t','$u','$y','$r','3')"; //null 为主键id，自增可用null表示自动添加
 		    	$res= $conn->query($sql);
 	        }else {
 	        	$sql = "UPDATE project SET modid='$t' WHERE id = '$id'"; //为项目添加modid
