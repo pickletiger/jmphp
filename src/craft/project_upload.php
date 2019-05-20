@@ -115,7 +115,12 @@
 			
 	       
 	        if($partname!=$projectname){
-		    	$sql = "INSERT INTO part (fid,belong_part,pNumber,figure_number,name,material,child_material,standard,radio,category,quantity,unit,count,modid,child_number,child_unit,remark,isfinish) VALUES('$id','$e','$pNumber','$i','$partname','$k','$l','$m','2','$n','$o','$p','$s','$t','$u','$y','$r','3')"; //null 为主键id，自增可用null表示自动添加
+	        	if($n == "A" || $n == "B"){
+	        		$radio = 1;
+	        	}else{
+	        		$radio = 2;
+	        	}
+		    	$sql = "INSERT INTO part (fid,belong_part,pNumber,figure_number,name,material,child_material,standard,radio,category,quantity,unit,count,modid,child_number,child_unit,remark,isfinish) VALUES('$id','$e','$pNumber','$i','$partname','$k','$l','$m','$radio','$n','$o','$p','$s','$t','$u','$y','$r','3')"; //null 为主键id，自增可用null表示自动添加
 		    	$res= $conn->query($sql);
 	        }else {
 	        	$sql = "UPDATE project SET modid='$t' WHERE id = '$id'"; //为项目添加modid
