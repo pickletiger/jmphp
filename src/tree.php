@@ -108,7 +108,13 @@
 		$projectname = $name.$str[1];
 		$key = isset($_POST["key"])?$_POST["key"]:'';
 //		$ret_data["type"] = $type;
-		$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$id' AND (belong_part=''||belong_part='$projectname') and radio = '$key'";
+		if($key==1||$key==2){
+			$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$id' AND (belong_part=''||belong_part='$projectname') and radio = '$key'";
+		}else if($key==3){
+			$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$id' AND (belong_part=''||belong_part='$projectname') and isfinish='2'";
+		}else if($key==4){
+			$sql = "SELECT id,name,modid,figure_number FROM part  WHERE fid = '$id' AND (belong_part=''||belong_part='$projectname') and isfinish='1'";
+		}
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;

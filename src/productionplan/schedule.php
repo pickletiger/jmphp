@@ -75,10 +75,32 @@
 				$sql2 = "UPDATE route SET isfinish='3',backMark='1',reason='".$reason."' where id='$routeidArr[$i]' ";
 				$conn->query($sql2);
 			}
-		  
-	
 	}else{
+		  $Wid = $_POST["Wid"];
+		  $schedule = $_POST["scheduleScrap"];
+		  $overdata = $_POST["overdataScrap"];
+			$cuser = $_POST["cuser"];
+		  $WidArr = explode(",",$Wid);
+		  $Wid_length = count($WidArr);
 		
+		  // 插入排产数据
+		  for($i = 0; $i < $Wid_length; $i++) {
+				$sqlc = "SELECT routeid,modid,todocount,unqualified from workshop_k where id = '$WidArr[$i]' ORDER BY id";
+				$resc=$conn->query($sqlc);
+				if($resc->num_rows>0){
+					$rowc=$resc->fetch_assoc();
+					$todocount = $rowc["todocount"] + $rowc["unqualified"];
+					$routeid = $rowc["routeid"];
+					$modid = $rowc["modid"];
+					$sql = "UPDATE workshop_k SET todocount='$todocount',unqualified='0',cuser='$cuser',stime='$schedule',otime='$overdata' where id='$WidArr[$i]'";
+					$conn->query($sql);
+					$sql1 = "UPDATE workshop_k SET isfinish ='0' where modid='$modid'";
+					$conn->query($sql1);
+					$sql2 = "UPDATE route SET isfinish ='2' where modid='$modid' and isfinish='1'";
+					$conn->query($sql2);
+				} 
+			} 
+			echo json_encode($data);
 	}
 
 

@@ -174,6 +174,27 @@
 	    $FStandard3 = json_encode($arr9);
 	    $json = '{"success":true,"rows3":'.$list_data3.'}';
 	  }
+	}elseif ($flag =="Scrap"){
+		$sql = "select id,fid,Wid,modid,Pname,pNumber,routeid,unqualified,figure_number,name,child_material,route from fail WHERE unqualified !='0' ORDER BY routeid ASC";
+		$res = $conn->query($sql);
+		$i = 0;
+		while($row = $res->fetch_assoc()){
+			$arr[$i]['partid'] = $row['id'];
+			$arr[$i]['Wid'] = $row['Wid'];
+	      	$arr[$i]['fid'] = $row['fid'];  
+     	 	$arr[$i]['modid'] = $row['modid']; 
+	      	$arr[$i]['figure_number'] = $row['figure_number']; 
+	      	$arr[$i]['name'] = $row['name'];
+	      	$arr[$i]['routeid'] = $row['routeid'];
+	      	$arr[$i]['count'] = $row['unqualified'];
+	      	$arr[$i]['child_material'] = $row['child_material'];
+	      	$arr[$i]['pNumber'] =$row['pNumber'];
+	      	$arr[$i]['product_name'] = $row['Pname'];
+			$arr[$i]['route'] = $row['route'];
+	      	$i++;
+		}
+		$list_data = json_encode($arr);
+		$json = '{"success":true,"rows4":' . $list_data . '}';
 	}else{
 		
 	}
