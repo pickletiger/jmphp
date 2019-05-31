@@ -8,7 +8,7 @@
 		$isfinish = isset($_POST["isfinish"]) ? $_POST["isfinish"] : '';
 		$list = isset($_POST["list"]) ? $_POST["list"] : '';
 		if ($isfinish == '3') {
-			$sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' and route in $list  ORDER BY backMark DESC,routeid";
+			$sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' and Pisfinish='0' and route in $list  ORDER BY backMark DESC,routeid";
 			$res = $conn -> query($sql);
 			if ($res -> num_rows == TRUE) {
 				$i = 0;

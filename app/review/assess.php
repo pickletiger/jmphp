@@ -117,23 +117,26 @@ switch ($flag) {
 		//返工返修记录次数，默认变为未完成
 		else if ($inspect === "7") {
 			if ($reviews === $finishcount) {
+				$reviews = $reviews - $finishcount;
 				$sql14 = "UPDATE workshop_k SET isfinish='2' ,reviews='".$reviews."' ,todocount=todocount + '".$finishcount."',notNum=notNum+1 WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
 				$conn -> query($sql14);
-				$sql16 = "UPDATE review SET isfinish='3' WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
+				$sql16 = "UPDATE review SET isfinish='3' ,reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
 				$conn -> query($sql16);
 			} else {
 				$reviews = $reviews - $finishcount;
 				$sql5 = "UPDATE workshop_k SET isfinish='2' ,reviews='".$reviews."' ,todocount=todocount + '".$finishcount."' ,notNum=notNum+1  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' AND isfinish='1' ORDER by id LIMIT 1";
 				$conn -> query($sql5);
+				$sql17 = "UPDATE review SET isfinish='3' ,reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
+				$conn -> query($sql17);
 			}
 		} 
 		//报废，默认不改变完成数量，记录检查数量作为报废数量
 		else if ($inspect === "6") {
 			$reviews = $reviews - $finishcount;
-			$sql8 = "UPDATE workshop_k SET isfinish='2' ,inspectcount='" . $reviews . "' ,unqualified=unqualified + '".$finishcount."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
-			$sql19 = "UPDATE review SET review='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
-			$conn -> query($sql19);
+			$sql8 = "UPDATE workshop_k SET isfinish='2' ,inspectcount='" . $reviews . "' ,reviews='".$reviews."' ,unqualified=unqualified + '".$finishcount."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 			$conn -> query($sql8);
+			$sql19 = "UPDATE review SET reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
+			$conn -> query($sql19);
 //			$sql19 = "UPDATE scrap SET scrapNum=scrapNum + '" . $reviews . "'  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 //			$conn -> query($sql19);
 		}

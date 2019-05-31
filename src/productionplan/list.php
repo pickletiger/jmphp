@@ -6,13 +6,14 @@
 	$flag = isset($_POST["flag"]) ? $_POST["flag"] : '';
 	if ($flag == 'Undelivered') {
 		// 获取列表数据
-		$sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' ORDER BY backMark DESC,routeid";
+		$sql = "select modid,figure_number,name,standard,route,count,child_material,number,product_name,remark,routeid,backMark,reason from productionplan WHERE isfinish='3' and Pisfinish='0' ORDER BY backMark DESC,routeid";
 		
 		$res = $conn -> query($sql);
 		if ($res -> num_rows > 0) {
 			$i = 0;
 			while ($row = $res -> fetch_assoc()) {
 				$arr[$i]['modid'] = $row['modid'];
+
 				$arr[$i]['figure_number'] = $row['figure_number'];
 				//零件图号
 				$arr[$i]['name'] = $row['name'];

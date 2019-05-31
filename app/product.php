@@ -232,7 +232,7 @@ switch ($flag) {
 
 		} else {
 			$todocount = $todocount - $finishcount;
-			$sql5 = "UPDATE workshop_k SET todocount='" . $todocount . "' ,inspectcount=inspectcount + '" . $finishcount . "' where modid='" . $modid . "' and routeid='" . $routeid . "' and ORDER by id LIMIT 1 ";
+			$sql5 = "UPDATE workshop_k SET todocount='" . $todocount . "' ,inspectcount=inspectcount + '" . $finishcount . "' where modid='" . $modid . "' and routeid='" . $routeid . "'  ORDER by id LIMIT 1 ";
 			$conn -> query($sql5);
 			
 			
@@ -282,11 +282,11 @@ switch ($flag) {
 				$sql2 = "INSERT INTO message (content,time,department,state,workstate,route,station,cuser) VALUES ('" . $message . "','" . date("Y-m-d H:i:s") . "','计划部','0','" . $workstate . "','" . $route . "','" . $station . "','" . $writtenBy . "')";
 				$conn -> query($sql2);
 				// 循环检测是否所有零件完成
-				$sql3 = "SELECT todocount ,reviewsNum from workshop_k where modid='" . $modid . "' and routeid='" . $routeid . "'  ";
+				$sql3 = "SELECT todocount ,reviews from workshop_k where modid='" . $modid . "' and routeid='" . $routeid . "'  ";
 				$res = $conn -> query($sql3);
 				if ($res -> num_rows > 0) {
 					while ($row = $res -> fetch_assoc()) {
-						if ($row['todocount'] == '0'  && $row['reviewsNum'] == '0') {
+						if ($row['todocount'] == '0'  && $row['reviews'] == '0') {
 							$sql4 = "UPDATE workshop_k SET isfinish='3'  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 							$conn -> query($sql4);
 						}
@@ -307,7 +307,7 @@ switch ($flag) {
 				$conn -> query($sql14);
 			} else {
 				$inspectcount = $inspectcount - $finishcount;
-				$sql5 = "UPDATE workshop_k  SET isfinish='2' ,notNum=notNum+1 ,todocount='" . $finishcount . "' ,inspectcount='" . $inspectcount . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' AND isfinish='1' ORDER by id LIMIT 1";
+				$sql5 = "UPDATE workshop_k  SET isfinish='2' ,notNum=notNum+1 ,todocount=todocount +  '" . $finishcount . "',inspectcount='" . $inspectcount . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 				$conn -> query($sql5);
 			}
 		} 
