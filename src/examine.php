@@ -5,7 +5,7 @@
 	$ret_data = '';
 	$flag = isset($_POST["flag"]) ? $_POST["flag"] : '';
 	if($flag == "Select"){
-		$sql = "select Wmodid,station,name,route,count,figure_number,radio,photourl from test where isfinish = '1' ORDER BY ftime desc ";
+		$sql = "select Wmodid,station,name,route,count,figure_number,radio,photourl,inspectcount from test where inspectcount !='0' ORDER BY ftime desc ";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
@@ -14,7 +14,7 @@
 				$ret_data["data"][$i]["partName"] = $row["name"];
 				$ret_data["data"][$i]["processName"] = $row["station"];
 				$ret_data["data"][$i]["route"] = $row["route"];
-				$ret_data["data"][$i]["count"] = $row["count"];
+				$ret_data["data"][$i]["count"] = $row["inspectcount"];
 				$ret_data["data"][$i]["figure_number"] = $row["figure_number"];
 				$partdrawnumber = $row["figure_number"];
 				
@@ -65,6 +65,7 @@
 //		$state = 3;
 		$state = $_POST["state"];
 		$sql = "select Wmodid,station,name,utime,photourl,route,count,figure_number,radio from test where isfinish = '".$state."'";
+		//  $sql = "select Wmodid,station,name,utime,photourl,route,count,figure_number,radio,inspectcount from test where inspectcount !='0'";
 		$res=$conn->query($sql);
 		if($res->num_rows>0){
 			$i = 0;
