@@ -2,19 +2,20 @@
 require("../../conn.php");
 
 $time = date("Y-m-d h:i:s");
-$flag = $_POST["flag"];
-//$flag = '2';
+//$flag = $_POST["flag"];
+$flag = '2';
 
 switch ($flag) {
 		case '0' : 
 
-			$sql = "SELECT id,name,figure_number,modid,routeid FROM review WHERE reviews != '0'";
+			$sql = "SELECT id,pid,name,figure_number,modid,routeid FROM review WHERE reviews != '0'";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				
 				$i = 0;
 				while($row = $res->fetch_assoc()) {
-					$data[$i]['id'] = $row['id'];
+					$data[$i]['rid'] = $row['id'];
+					$data[$i]['pid'] = $row['pid'];
 					$data[$i]['name'] = $row['name'];
                     $data[$i]['figure_number'] = $row['figure_number'];
 					$data[$i]['routeid'] = $row['routeid'];
@@ -33,8 +34,8 @@ switch ($flag) {
 			break;
 			
 		case '1' : 
-			$id = $_POST["id"];
-			$sql = "SELECT id,name,figure_number,reviews,route FROM review WHERE id = '".$id."'";
+			$rid = $_POST["rid"];
+			$sql = "SELECT id,name,figure_number,reviews,route FROM review WHERE id = '".$rid."'";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				
@@ -60,7 +61,7 @@ switch ($flag) {
 		case '2' :   
 		$modid = $_POST["modid"];
 //		$modid = '1000616927';
-		$id = $_POST["id"];
+		$rid = $_POST["rid"];
 		$routeid = $_POST["routeid"];
 //		$routeid = '19067';
 //		$route = $_POST["route"];
@@ -106,10 +107,11 @@ switch ($flag) {
 			} else {
 				//部分合格
 				$reviews = $reviews - $finishcount;
-				$sql7 = "UPDATE workshop_k SET reviews='".$reviews."' ,utime='".$time."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
-				$conn -> query($sql7);
-				$sql13 = "UPDATE review SET reviews='".$reviews."' ,utime='" . $time . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
+				$sql13 = "UPDATE review SET reviews='".$reviews."' ,utime='" . $time . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' and id='" . $rid . "' ORDER by id LIMIT 1";
 				$conn -> query($sql13);
+				
+				$sql7 = "UPDATE workshop_k SET reviews=reviews - '".$reviews."' ,utime='".$time."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
+				$conn -> query($sql7);
 			}
 			
 			
