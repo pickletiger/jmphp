@@ -106,6 +106,12 @@
 						$returnData["data"][$j]["children"][$i]["children"][1]["label"] = "机械制造工艺及检验表";
 						$returnData["data"][$j]["children"][$i]["children"][1]["thereFlag"] = 2;
 						$returnData["data"][$j]["children"][$i]["children"][1]["thereId"] = $row1["id"];
+						$returnData["data"][$j]["children"][$i]["children"][2]["label"] = "热处理施工单";
+						$returnData["data"][$j]["children"][$i]["children"][2]["thereFlag"] = 3;
+						$returnData["data"][$j]["children"][$i]["children"][2]["thereId"] = $row["id"];
+						$returnData["data"][$j]["children"][$i]["children"][3]["label"] = "机械加工工艺过程卡";
+						$returnData["data"][$j]["children"][$i]["children"][3]["thereFlag"] = 4;
+						$returnData["data"][$j]["children"][$i]["children"][3]["thereId"] = $row["id"];
 						$i++;
 					}
 				}
