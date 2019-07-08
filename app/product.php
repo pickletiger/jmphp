@@ -132,7 +132,7 @@ switch ($flag) {
 //			//				die();
 //		}
 		// 更新message
-		$sql4 = "INSERT INTO message (content,time,department,state,workstate,route,station,cuser) VALUES ('" . $message . "','" . $time . "','销售部','0','" . $workstate . "','" . $route . "','" . $station . "','" . $writtenBy . "')";
+		$sql4 = "INSERT INTO message (content,time,department,state,workstate,route,station,cuser) VALUES ('".$message."','".$time."','销售部','0','".$workstate."','".$route."','".$station."','".$writtenBy."')";
 		$res = $conn -> query($sql4);
 		$messageid = $conn -> insert_id;
 		$data['messageid'] = $messageid;
@@ -227,7 +227,7 @@ switch ($flag) {
 
 		if ($todocount === $finishcount) {
 			$todocount = $todocount - $finishcount;
-			$sql = "UPDATE workshop_k SET isfinish='1' ,todocount='" . $todocount . "' ,inspectcount=inspectcount + '" . $finishcount . "' ,ftime='" . $time . "' where modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1 ";
+			$sql = "UPDATE workshop_k SET ,todocount='" . $todocount . "' ,inspectcount=inspectcount + '" . $finishcount . "' ,ftime='" . $time . "' where modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1 ";
 			$conn -> query($sql);
 
 		} else {
@@ -279,7 +279,7 @@ switch ($flag) {
 				$sql1 = "UPDATE message SET state='1' where id='" . $messageid . "' ORDER by id LIMIT 1 ";
 				$conn -> query($sql1);
 				//将检验信息更新到消息通知
-				$sql2 = "INSERT INTO message (content,time,department,state,workstate,route,station,cuser) VALUES ('" . $message . "','" . date("Y-m-d H:i:s") . "','计划部','0','" . $workstate . "','" . $route . "','" . $station . "','" . $writtenBy . "')";
+				$sql2 = "INSERT INTO message (content,time,department,state,workstate,route,station,cuser) VALUES ('" . $message . "','" . $time . "','计划部','0','" . $workstate . "','" . $route . "','" . $station . "','" . $writtenBy . "')";
 				$conn -> query($sql2);
 				// 循环检测是否所有零件完成
 				$sql3 = "SELECT todocount ,reviews from workshop_k where modid='" . $modid . "' and routeid='" . $routeid . "'  ";
@@ -302,8 +302,9 @@ switch ($flag) {
 		}
 		//返工记录次数，默认变为未完成
 		else if ($inspect === "4") {
+			$inspectcount = $inspectcount - $finishcount;
 			if ($inspectcount === $finishcount) {
-				$sql14 = "UPDATE workshop_k SET  isfinish='2' ,todocount=todocount +  '" . $finishcount . "',notNum=notNum+1 WHERE modid='" . $modid . "' and routeid='" . $routeid . "'  ORDER by id LIMIT 1";
+				$sql14 = "UPDATE workshop_k SET  isfinish='2' ,todocount=todocount +  '" . $finishcount . "',notNum=notNum+1,inspectcount='" . $inspectcount . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "'  ORDER by id LIMIT 1";
 				$conn -> query($sql14);
 			} else {
 				$inspectcount = $inspectcount - $finishcount;
@@ -317,7 +318,7 @@ switch ($flag) {
 			$sql6 = "UPDATE workshop_k SET reviews=reviews + '" . $finishcount . "' ,inspectcount='" . $inspectcount . "'  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 			$conn -> query($sql6);
 //			//保存数据进review
-			$sql7 = "INSERT INTO review (modid,routeid,name,figure_number,reviews,route,isfinish,uuser) VALUES ('".$modid."','".$routeid."','".$name."','".$figure_number."','".$finishcount."','".$route."','5','".$writtenBy."')";
+			$sql7 = "INSERT INTO review (pid,modid,routeid,name,figure_number,reviews,route,isfinish,uuser) VALUES ('".$pid."','".$modid."','".$routeid."','".$name."','".$figure_number."','".$finishcount."','".$route."','5','".$writtenBy."')";
 			$conn -> query($sql7);
 		} 
 		//报废，默认不改变完成数量，记录检查数量作为报废数量
