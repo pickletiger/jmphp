@@ -2,13 +2,13 @@
 require("../../conn.php");
 
 $time = date("Y-m-d h:i:s");
-//$flag = $_POST["flag"];
-$flag = '2';
+$flag = $_POST["flag"];
+//$flag = '2';
 
 switch ($flag) {
 		case '0' : 
 
-			$sql = "SELECT id,pid,name,figure_number,modid,routeid FROM review WHERE reviews != '0'";
+			$sql = "SELECT id,pid,name,figure_number,modid,routeid FROM review WHERE reviews != '0' and isfinish = '5'";
 			$res = $conn->query($sql);
 			if($res -> num_rows > 0) {
 				
@@ -61,6 +61,7 @@ switch ($flag) {
 		case '2' :   
 		$modid = $_POST["modid"];
 //		$modid = '1000616927';
+		$pid = $_POST["pid"];
 		$rid = $_POST["rid"];
 		$routeid = $_POST["routeid"];
 //		$routeid = '19067';
@@ -82,11 +83,11 @@ switch ($flag) {
 			if ($reviews === $finishcount) {
 				//全部合格
 				$reviews = $reviews - $finishcount;
-				$sql = "UPDATE workshop_k SET reviews='".$reviews."' ,utime='".$time."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
+				$sql = "UPDATE workshop_k SET reviews=reviews-'".$finishcount."' ,utime='".$time."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 				$conn -> query($sql);
 				//更新review
-				$sql16 = "UPDATE review SET isfinish='3' WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
-				$conn -> query($sql16);
+				$sql2 = "UPDATE review SET reviews='".$reviews."', isfinish='3' WHERE modid='".$modid."' and routeid='".$routeid."' and id='" . $rid . "' ORDER by id LIMIT 1";
+				$conn -> query($sql2);
 //	//			// 更新message
 //				$sql1 = "UPDATE message SET state='1' where id='" . $messageid . "' ORDER by id LIMIT 1 ";
 //				$conn -> query($sql1);
@@ -107,11 +108,11 @@ switch ($flag) {
 			} else {
 				//部分合格
 				$reviews = $reviews - $finishcount;
-				$sql13 = "UPDATE review SET reviews='".$reviews."' ,utime='" . $time . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' and id='" . $rid . "' ORDER by id LIMIT 1";
-				$conn -> query($sql13);
+				$sql5 = "UPDATE review SET reviews='".$reviews."' ,utime='" . $time . "' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' and id='" . $rid . "' ORDER by id LIMIT 1";
+				$conn -> query($sql5);
 				
-				$sql7 = "UPDATE workshop_k SET reviews=reviews - '".$reviews."' ,utime='".$time."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
-				$conn -> query($sql7);
+				$sql6 = "UPDATE workshop_k SET reviews=reviews - '".$finishcount."' ,utime='".$time."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
+				$conn -> query($sql6);
 			}
 			
 			
@@ -120,31 +121,31 @@ switch ($flag) {
 		else if ($inspect === "7") {
 			if ($reviews === $finishcount) {
 				$reviews = $reviews - $finishcount;
-				$sql14 = "UPDATE workshop_k SET isfinish='2' ,reviews='".$reviews."' ,todocount=todocount + '".$finishcount."',notNum=notNum+1 WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
-				$conn -> query($sql14);
-				$sql16 = "UPDATE review SET isfinish='3' ,reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
-				$conn -> query($sql16);
+				$sql7 = "UPDATE workshop_k SET isfinish='2' ,reviews='".$reviews."' ,todocount=todocount + '".$finishcount."',notNum=notNum+1 WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
+				$conn -> query($sql7);
+				$sql8 = "UPDATE review SET isfinish='3' ,reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."'and id='" . $rid . "' ORDER by id LIMIT 1";
+				$conn -> query($sql8);
 			} else {
 				$reviews = $reviews - $finishcount;
-				$sql5 = "UPDATE workshop_k SET isfinish='2' ,reviews='".$reviews."' ,todocount=todocount + '".$finishcount."' ,notNum=notNum+1  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' AND isfinish='1' ORDER by id LIMIT 1";
-				$conn -> query($sql5);
-				$sql17 = "UPDATE review SET isfinish='3' ,reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
-				$conn -> query($sql17);
+				$sql9 = "UPDATE workshop_k SET isfinish='2' ,reviews=reviews - '".$finishcount."' ,todocount=todocount + '".$finishcount."' ,notNum=notNum+1  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
+				$conn -> query($sql9);
+				$sql10 = "UPDATE review SET reviews='".$reviews."' WHERE modid='".$modid."' and routeid='".$routeid."' and id='" . $rid . "'  ORDER by id LIMIT 1";
+				$conn -> query($sql10);
 			}
 		} 
 		//报废，默认不改变完成数量，记录检查数量作为报废数量
 		else if ($inspect === "6") {
 			$reviews = $reviews - $finishcount;
-			$sql8 = "UPDATE workshop_k SET isfinish='2' ,inspectcount='" . $reviews . "' ,reviews='".$reviews."' ,unqualified=unqualified + '".$finishcount."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
-			$conn -> query($sql8);
-			$sql19 = "UPDATE review SET reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."' ORDER by id LIMIT 1";
-			$conn -> query($sql19);
+			$sql11 = "UPDATE workshop_k SET isfinish='2' ,inspectcount='" . $reviews . "' ,reviews='".$reviews."' ,dumping=dumping + '".$finishcount."' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
+			$conn -> query($sql11);
+			$sql12 = "UPDATE review SET reviews='".$reviews."'  WHERE modid='".$modid."' and routeid='".$routeid."'and id='" . $rid . "' ORDER by id LIMIT 1";
+			$conn -> query($sql12);
 //			$sql19 = "UPDATE scrap SET scrapNum=scrapNum + '" . $reviews . "'  WHERE modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1";
 //			$conn -> query($sql19);
 		}
 		// 循环检测是否所有工序完成
-		$sql9 = "SELECT isfinish from workshop_k where modid='" . $modid . "' and routeid='" . $routeid . "' ";
-		$res1 = $conn -> query($sql9);
+		$sql13 = "SELECT isfinish from workshop_k where modid='" . $modid . "' and routeid='" . $routeid . "' ";
+		$res1 = $conn -> query($sql13);
 		if ($res1 -> num_rows > 0) {
 			while ($row1 = $res1 -> fetch_assoc()) {
 				if ($row1['isfinish'] != '3') {
@@ -153,12 +154,12 @@ switch ($flag) {
 				}
 			}
 			// 更新route进度为完成状态
-			$sql10 = "UPDATE route SET isfinish='1' where modid='" . $modid . "' and id='" . $routeid . "' ORDER by id LIMIT 1 ";
-			$conn -> query($sql10);
+			$sql14 = "UPDATE route SET isfinish='1' where modid='" . $modid . "' and id='" . $routeid . "' ORDER by id LIMIT 1 ";
+			$conn -> query($sql14);
 
 			// 循环检测是否所有车间完成
-			$sql11 = "SELECT isfinish from route where modid='" . $modid . "' and pid='" . $pid . "' ";
-			$res2 = $conn -> query($sql11);
+			$sql15 = "SELECT isfinish from route where modid='" . $modid . "' and pid='" . $pid . "' ";
+			$res2 = $conn -> query($sql15);
 			if ($res2 -> num_rows > 0) {
 				while ($row2 = $res2 -> fetch_assoc()) {
 					if ($row2 ['isfinish'] != '1') {
@@ -167,8 +168,8 @@ switch ($flag) {
 					}
 				}
 				// 更新part进度为完成状态
-				$sql12 = "UPDATE part SET isfinish='1' where modid='" . $modid . "' and fid='" . $pid . "' ORDER by id LIMIT 1 ";
-				$res2 = $conn -> query($sql12);
+				$sql16 = "UPDATE part SET isfinish='1' where modid='" . $modid . "' and fid='" . $pid . "' ORDER by id LIMIT 1 ";
+				$res2 = $conn -> query($sql16);
 			}
 		}
 		break;
