@@ -1,7 +1,7 @@
 <?php
 	require("../conn.php");
-	header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
-	$ret_data='';
+	// header("Access-Control-Allow-Origin: *"); // 允许任意域名发起的跨域请求
+	$ret_data=array();
 	$time=date("Y-m-d h:i:sa");
 	$flag = isset($_POST["flag"])?$_POST["flag"]:'';
 	// $flag = 'Overdue';
