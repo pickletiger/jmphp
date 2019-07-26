@@ -8,13 +8,14 @@ switch ($flag) {
         $pid = $_POST["pid"];
         $modid = $_POST["modid"];
         $routeid = $_POST["routeid"];
-        $sql = "select name,figure_number,count,child_material,quantity,modid from part where id='" . $id . "' ";
+        $sql = "select name,figure_number,pNumber,count,child_material,quantity,modid from part where id='" . $id . "' ";
         $res = $conn->query($sql);
         if ($res->num_rows > 0) {
             $i = 0;
             while ($row = $res->fetch_assoc()) {
                 $arr[$i]['name'] = $row['name'];
                 $arr[$i]['figure_number'] = $row['figure_number'];
+				$arr[$i]['pNumber'] = $row['pNumber'];
                 $arr[$i]['count'] = $row['count'];
                 $arr[$i]['child_material'] = $row['child_material'];
                 $arr[$i]['quantity'] = $row['quantity'];
@@ -86,6 +87,8 @@ switch ($flag) {
         $route = $_POST["route"];
         $station = $_POST["station"];
         $name = $_POST["name"];
+		$figure_number = $_POST["figure_number"];
+		$pNumber = $_POST["pNumber"];
         $count = $_POST["count"];
         $workstate = '就工';
         $message = $name . "的" . $route . "的" . $station . "已就工！";
@@ -97,6 +100,8 @@ switch ($flag) {
         // 更新route路线中（在建）
         $sql2 = "UPDATE route SET isfinish='2' where modid='" . $modid . "' and id='" . $routeid . "' ORDER by id LIMIT 1 ";
         $conn->query($sql2);
+		$sql3 = "INSERT INTO warehouse (modid,pid,pNumber,figure_number) VALUES ('".$modid."','".$pid."','".$pNumber."','".$figure_number."')";
+		$conn->query($sql3);
         //		} else if ($isfinish == "0"){
         //			$sql3 = "UPDATE workshop_k SET isfinish='2' WHERE modid='" . $modid . "' and routeid='" . $routeid . "' and isfinish='4' ORDER by id LIMIT 1";
         //			$conn -> query($sql3);
@@ -300,15 +305,20 @@ switch ($flag) {
         $messageid = $_POST["messageid"];
         $station = $_POST["station"];
         $name = $_POST["name"];
+		$figure_number = $_POST["figure_number"];
+		$pNumber = $_POST["pNumber"];
         $todocount = $_POST["todocount"];
         $finishcount = $_POST["finishcount"];
         $workstate = '完工';
         $message = $name . "的" . $route . "的" . $station . "已完工！";
         $writtenBy = '$_POST["writtenBy"]';
+		$sql6 = "UPDATE warehouse SET count='".$finishcount."' where pid='".$pid."' and figure_number='".$figure_number."' and pNumber='".$pNumber."' ";
+		$conn->query($sql6);
         if ($todocount === $finishcount) {
             $todocount = $todocount - $finishcount;
             $sql = "UPDATE workshop_k SET isfinish='1' ,todocount='" . $todocount . "' ,inspectcount=inspectcount + '" . $finishcount . "' ,ftime='" . $time . "' where modid='" . $modid . "' and routeid='" . $routeid . "' ORDER by id LIMIT 1 ";
             $conn->query($sql);
+			
         } else {
             $todocount = $todocount - $finishcount;
             $sql5 = "UPDATE workshop_k SET todocount='" . $todocount . "' ,inspectcount=inspectcount + '" . $finishcount . "' where modid='" . $modid . "' and routeid='" . $routeid . "'  ORDER by id LIMIT 1 ";
@@ -422,14 +432,14 @@ switch ($flag) {
         //					$modid = "1000634968";
         //					$routeid = "18959";
         //			$sql = "SELECT A.modid,A.figure_number,A.name,A.count,A.child_material,A.remark,B.id AS routeid,C.route,C.id,C.notNum,C.station FROM part A,route B,workshop_k C WHERE C.isfinish = '0' AND A.modid = B.modid AND B.id = C.routeid AND B.modid = C.modid ORDER BY id LIMIT 1";
-        $sql = "select name,figure_number,child_material,quantity,modid from part where id='" . $id . "' ";
+        $sql = "select name,figure_number,pNumber,child_material,quantity,modid from part where id='" . $id . "' ";
         $res = $conn->query($sql);
         if ($res->num_rows > 0) {
             $i = 0;
             while ($row = $res->fetch_assoc()) {
                 $arr[$i]['name'] = $row['name'];
                 $arr[$i]['figure_number'] = $row['figure_number'];
-                //					$arr[$i]['count'] = $row['count'];
+                $arr[$i]['pNumber'] = $row['pNumber'];
                 $arr[$i]['child_material'] = $row['child_material'];
                 $arr[$i]['quantity'] = $row['quantity'];
                 $i++;
@@ -608,6 +618,53 @@ switch ($flag) {
             }
         }
         break;
+		
+		
+		case '10':
+		    // 获取warehouse状态
+			$figure_number = $_POST["figure_number"];
+			$pid = $_POST["pid"];
+		    $modid = $_POST["modid"];
+		    $sql = "SELECT id,pNumber,count FROM warehouse WHERE modid='" . $modid . "' AND figure_number='" . $figure_number . "' AND count != '0' ";
+		    $res = $conn->query($sql);
+		    if ($res->num_rows > 0) {
+		        $i = 0;
+		        while ($row = $res->fetch_assoc()) {
+					  $arr[$i]['id'] = $row['id'];
+		            $arr[$i]['shiftpNumber'] = $row['pNumber'];
+		            $arr[$i]['count'] = $row['count'];
+		            $i++;
+		        }
+		    } else {
+		        $i = 0;
+		        //已完工
+		        $arr[$i]['isfinish'] = "1";
+		    }
+		    $json = json_encode($arr);
+		    echo $json;
+		    break;
+			
+			case '11':
+			    // 获取warehouse状态
+				$sid = $_POST["sid"];
+				$pid = $_POST["pid"];
+			    $modid = $_POST["modid"];
+				$finishcount = $_POST["finishcount"];
+				$pNumber = $_POST["pNumber"];
+				$shiftpNumber = $_POST["shiftpNumber"];
+				//调单
+				$sql = "UPDATE warehouse SET count=count + '" . $finishcount . "' where pNumber='" . $pNumber . "' ";
+				$res = $conn->query($sql);
+				//被调单
+			    $sql1 = "UPDATE warehouse SET count=count - '" . $finishcount . "' where pNumber='" . $shiftpNumber . "' and id='" . $sid . "' ";
+			    $res = $conn->query($sql1);
+				//调单记录
+				$sql2 = "INSERT INTO shiftrecord (pNumber,shiftpNumber,shiftcount) VALUES ('".$pNumber."','".$shiftpNumber."','".$finishcount."')";
+				$res = $conn->query($sql2);
+			    // if ($res->num_rows > 0) {} else {}
+			    // $json = json_encode($arr);
+			    // echo $json;
+			    break;
     }
     $conn->close();
 ?>
